@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../../Courses"
+		}
+	],
+	"settings": {
+		"java.project.sourcePaths": [
+			".vscode"
+		],
+		"liveServer.settings.multiRootWorkspaceName": "C:"
+	}
+}
