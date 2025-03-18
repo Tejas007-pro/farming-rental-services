@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const Booking = require('./Booking');
 const Equipment = require('./Equipment');
+const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -13,6 +14,40 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(express.json());
 app.use(cors());
+app.use('/uploads', express.static('uploads'));
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Make sure this folder exists
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+const upload = multer({ storage: storage });
+
+// POST endpoint to add equipment with image upload
+app.post('/api/equipment', upload.single('image'), async (req, res) => {
+  const { name, description, rentalPrice } = req.body;
+  // req.file contains the uploaded file information
+  // Save file path (or URL if using cloud storage) in the database
+  const imageUrl = req.file ? req.file.path : '';
+  
+  try {
+    const newEquipment = new Equipment({
+      name,
+      description,
+      imageUrl,
+      rentalPrice,
+      available: true,
+    });
+    await newEquipment.save();
+    res.status(201).json({ message: 'Equipment added successfully!', equipment: newEquipment });
+  } catch (error) {
+    console.error('Error adding equipment:', error);
+    res.status(500).json({ error: 'Server error while adding equipment.' });
+  }
+});
 
 // Connect to MongoDB
 const MONGODB_URI = 'mongodb+srv://fegadetejas0012:fegadetejas007%40.com@rental-services.h4cap.mongodb.net/users?retryWrites=true&w=majority&appName=rental-services'; // If you use MongoDB Atlas, replace with your connection string

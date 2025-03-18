@@ -6,9 +6,9 @@ const AddEquipment = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    imageUrl: '',
     rentalPrice: '',
   });
+  const [selectedFile, setSelectedFile] = useState(null);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -17,14 +17,30 @@ const AddEquipment = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage('');
     setError('');
     try {
-      const response = await axios.post('http://localhost:5000/api/equipment', formData);
+      // Create FormData to send text fields and file
+      const data = new FormData();
+      data.append('name', formData.name);
+      data.append('description', formData.description);
+      data.append('rentalPrice', formData.rentalPrice);
+      if (selectedFile) {
+        data.append('image', selectedFile);
+      }
+      const response = await axios.post('http://localhost:5000/api/equipment', data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       setMessage(response.data.message);
-      // Optionally, clear the form or update state
+      // Optionally clear the form fields here
     } catch (err) {
       setError(err.response?.data.error || 'Failed to add equipment.');
     }
@@ -45,12 +61,12 @@ const AddEquipment = () => {
           <input type="text" name="description" value={formData.description} onChange={handleChange} required />
         </div>
         <div>
-          <label>Image URL:</label>
-          <input type="text" name="imageUrl" value={formData.imageUrl} onChange={handleChange} />
-        </div>
-        <div>
           <label>Rental Price:</label>
           <input type="text" name="rentalPrice" value={formData.rentalPrice} onChange={handleChange} required />
+        </div>
+        <div>
+          <label>Select Image:</label>
+          <input type="file" name="image" onChange={handleFileChange} required />
         </div>
         <button type="submit">Add Equipment</button>
       </form>
