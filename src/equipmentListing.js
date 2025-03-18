@@ -1,6 +1,9 @@
 import React from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import tractorImage from './sss.jfif';
+import  harvesterImage from './harvester.jfif';
+import  plowImage from './plow.jfif';
 
 // Sample hard-coded equipment data
 const equipmentData = [
@@ -8,22 +11,22 @@ const equipmentData = [
     id: 1,
     name: "Tractor",
     description: "Reliable tractor for farm tasks.",
-    imageUrl: "https://via.placeholder.com/150",
-    rentalPrice: "₹200/day"
+    imageUrl: tractorImage, // Use the imported image
+    rentalPrice: "₹1200/day"
   },
   {
     id: 2,
     name: "Harvester",
     description: "Efficient harvester for crop collection.",
-    imageUrl: "https://via.placeholder.com/150",
-    rentalPrice: "₹500/day"
+    imageUrl: harvesterImage,
+    rentalPrice: "₹5000/day"
   },
   {
     id: 3,
     name: "Plow",
     description: "Durable plow for field preparation.",
-    imageUrl: "https://via.placeholder.com/150",
-    rentalPrice: "₹100/day"
+    imageUrl: plowImage,
+    rentalPrice: "₹500/day"
   }
 ];
 
