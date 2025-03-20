@@ -10,6 +10,7 @@ const multer = require('multer');
 const equipmentRoutes = require('./EquipmentRoutes'); // Import your route file
 
 
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 

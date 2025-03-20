@@ -1,48 +1,33 @@
+// src/EquipmentListing.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Slider from 'react-slick';
 import { Link } from 'react-router-dom';
-import { Box, TextField, Grid, Card, CardMedia, CardContent, CardActions, Typography, Button } from '@mui/material';
-import tractorImage from './sss.jfif';
-import harvesterImage from './harvester.jfif';
-import plowImage from './plow.jfif';
+import {
+  Box,
+  TextField,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  CardActions,
+  Typography,
+  Button,
+  Container,
+} from '@mui/material';
 
-const staticEquipment = [
-  {
-    _id: 'static-1',
-    name: "Tractor",
-    description: "Reliable tractor for farm tasks.",
-    imageUrl: tractorImage,
-    rentalPrice: "₹1200/day",
-    available: true,
-  },
-  {
-    _id: 'static-2',
-    name: "Harvester",
-    description: "Efficient harvester for crop collection.",
-    imageUrl: harvesterImage,
-    rentalPrice: "₹5000/day",
-    available: true,
-  },
-  {
-    _id: 'static-3',
-    name: "Plow",
-    description: "Durable plow for field preparation.",
-    imageUrl: plowImage,
-    rentalPrice: "₹500/day",
-    available: true,
-  },
-];
+
+
 
 const EquipmentListing = () => {
-  const [equipment, setEquipment] = useState(staticEquipment);
+  const [equipment, setEquipment] = useState([]);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/equipment')
       .then(response => {
-        // Merge fetched data with static equipment
-        setEquipment([...staticEquipment, ...response.data.equipment]);
+        setEquipment([ ...response.data.equipment]);
       })
       .catch(err => setError('Failed to fetch equipment.'));
   }, []);
@@ -52,8 +37,19 @@ const EquipmentListing = () => {
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Slider settings for react-slick
+  const sliderSettings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    autoplay: true,
+    autoplaySpeed: 3000,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+  };
+
   return (
-    <Box p={4}>
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <TextField
         fullWidth
         placeholder="Search equipment..."
@@ -67,6 +63,53 @@ const EquipmentListing = () => {
           {error}
         </Typography>
       )}
+      
+      {/* Featured Equipment Slider */}
+      <Typography variant="h5" sx={{ mb: 2, mt: 4 }}>
+        Featured Equipment
+      </Typography>
+      <Box sx={{ mb: 4 }}>
+        <Slider {...sliderSettings}>
+          {filteredEquipment.map(item => (
+            <Box key={item._id} sx={{ px: 2 }}>
+              <Card sx={{ position: 'relative', boxShadow: 3, borderRadius: 2 }}>
+                <CardMedia
+                  component="img"
+                  height="300"
+                  image={
+                    item.imageUrl &&
+                    typeof item.imageUrl === 'string' &&
+                    (item.imageUrl.startsWith('/uploads') || item.imageUrl.startsWith('uploads'))
+                      ? `http://localhost:5000${item.imageUrl.startsWith('/') ? item.imageUrl : '/' + item.imageUrl}`
+                      : item.imageUrl || 'https://via.placeholder.com/150'
+                  }
+                  alt={item.name}
+                  sx={{ objectFit: 'cover' }}
+                />
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    width: '100%',
+                    background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+                    color: '#fff',
+                    p: 1,
+                  }}
+                >
+                  <Typography variant="h6">{item.name}</Typography>
+                  <Typography variant="subtitle1">Price: {item.rentalPrice}</Typography>
+                </Box>
+              </Card>
+            </Box>
+          ))}
+        </Slider>
+      </Box>
+
+      {/* All Equipment Grid */}
+      <Typography variant="h5" sx={{ mb: 2 }}>
+        All Equipment
+      </Typography>
       <Grid container spacing={4}>
         {filteredEquipment.map(item => (
           <Grid item xs={12} sm={6} md={4} key={item._id}>
@@ -94,21 +137,22 @@ const EquipmentListing = () => {
                   <strong>{item.rentalPrice}</strong>
                 </Typography>
               </CardContent>
-              <CardActions>
+              <Box sx={{ p: 2 }}>
                 <Button 
                   component={Link} 
                   to={`/equipment/${item._id}`} 
                   variant="contained" 
                   color="primary"
+                  fullWidth
                 >
                   Rent Now
                 </Button>
-              </CardActions>
+              </Box>
             </Card>
           </Grid>
         ))}
       </Grid>
-    </Box>
+    </Container>
   );
 };
 

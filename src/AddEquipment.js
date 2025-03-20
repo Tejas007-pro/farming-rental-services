@@ -1,6 +1,6 @@
-// src/AddEquipment.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Container, Card, CardContent, Typography, TextField, Button, Box } from '@mui/material';
 
 const AddEquipment = () => {
   const [formData, setFormData] = useState({
@@ -47,30 +47,79 @@ const AddEquipment = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-      <h2>Add Equipment</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {message && <p style={{ color: 'green' }}>{message}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Name:</label>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Description:</label>
-          <input type="text" name="description" value={formData.description} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Rental Price:</label>
-          <input type="text" name="rentalPrice" value={formData.rentalPrice} onChange={handleChange} required />
-        </div>
-        <div>
-          <label>Select Image:</label>
-          <input type="file" name="image" onChange={handleFileChange} required />
-        </div>
-        <button type="submit">Add Equipment</button>
-      </form>
-    </div>
+    <Container maxWidth="sm">
+      <Card sx={{ mt: 8, boxShadow: 3, borderRadius: 2 }}>
+        <CardContent>
+          <Typography variant="h4" align="center" gutterBottom>
+            Add Equipment
+          </Typography>
+          {error && (
+            <Typography variant="body1" color="error" align="center" sx={{ mb: 2 }}>
+              {error}
+            </Typography>
+          )}
+          {message && (
+            <Typography variant="body1" color="success.main" align="center" sx={{ mb: 2 }}>
+              {message}
+            </Typography>
+          )}
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              label="Name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Rental Price"
+              name="rentalPrice"
+              value={formData.rentalPrice}
+              onChange={handleChange}
+              required
+              margin="normal"
+            />
+            {/* Styled button for file upload */}
+            <Button
+              variant="contained"
+              component="label"
+              fullWidth
+              sx={{ mt: 2 }}
+            >
+              Upload Image
+              <input
+                type="file"
+                name="image"
+                hidden
+                onChange={handleFileChange}
+                required
+              />
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 3, py: 1.5, fontWeight: 'bold' }}
+            >
+              Add Equipment
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+    </Container>
   );
 };
 

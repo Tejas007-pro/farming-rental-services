@@ -1,11 +1,20 @@
-// src/BookingForm.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import {
+  Container,
+  Card,
+  CardContent,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Alert,
+} from '@mui/material';
 
 const BookingForm = () => {
   const [formData, setFormData] = useState({
     equipmentId: '',
-    userId: '', // This might come from logged-in user context
+    userId: '', // Ideally this comes from your authentication context
     startDate: '',
     endDate: '',
   });
@@ -30,54 +39,76 @@ const BookingForm = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-      <h2>Create a Booking</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {message && <p style={{ color: 'green' }}>{message}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Equipment ID:</label>
-          <input
-            type="text"
-            name="equipmentId"
-            value={formData.equipmentId}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>User ID:</label>
-          <input
-            type="text"
-            name="userId"
-            value={formData.userId}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Start Date:</label>
-          <input
-            type="date"
-            name="startDate"
-            value={formData.startDate}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>End Date:</label>
-          <input
-            type="date"
-            name="endDate"
-            value={formData.endDate}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit">Book Equipment</button>
-      </form>
-    </div>
+    <Container maxWidth="sm">
+      <Card sx={{ mt: 8, boxShadow: 3, borderRadius: 2 }}>
+        <CardContent>
+          <Typography variant="h4" align="center" gutterBottom>
+            Create a Booking
+          </Typography>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          {message && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              {message}
+            </Alert>
+          )}
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              label="Equipment ID"
+              name="equipmentId"
+              value={formData.equipmentId}
+              onChange={handleChange}
+              required
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="User ID"
+              name="userId"
+              value={formData.userId}
+              onChange={handleChange}
+              required
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              type="date"
+              label="Start Date"
+              name="startDate"
+              InputLabelProps={{ shrink: true }}
+              value={formData.startDate}
+              onChange={handleChange}
+              required
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              type="date"
+              label="End Date"
+              name="endDate"
+              InputLabelProps={{ shrink: true }}
+              value={formData.endDate}
+              onChange={handleChange}
+              required
+              margin="normal"
+            />
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ mt: 3, py: 1.5, fontWeight: 'bold' }}
+            >
+              Book Equipment
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+    </Container>
   );
 };
 

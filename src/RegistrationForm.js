@@ -1,6 +1,6 @@
-// frontend/src/RegistrationForm.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Box, TextField, Button, Typography, Container, Card, CardContent } from '@mui/material';
 
 const RegistrationForm = () => {
   const [formData, setFormData] = useState({
@@ -30,44 +30,65 @@ const RegistrationForm = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-      <h2>Register</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {message && <p style={{ color: 'green' }}>{message}</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Username:</label>
-          <input
-            type="text"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit">Register</button>
-      </form>
-    </div>
+    <Container maxWidth="sm">
+      <Card sx={{ mt: 8, boxShadow: 3, borderRadius: 2 }}>
+        <CardContent>
+          <Typography variant="h4" align="center" gutterBottom>
+            Register
+          </Typography>
+          {error && (
+            <Typography variant="body1" color="error" align="center" sx={{ mb: 2 }}>
+              {error}
+            </Typography>
+          )}
+          {message && (
+            <Typography variant="body1" color="success.main" align="center" sx={{ mb: 2 }}>
+              {message}
+            </Typography>
+          )}
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              label="Username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              margin="normal"
+            />
+            <TextField
+              fullWidth
+              label="Password"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              margin="normal"
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 3, py: 1.5, fontWeight: 'bold' }}
+            >
+              Register
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+    </Container>
   );
 };
 

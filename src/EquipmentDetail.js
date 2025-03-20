@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Card, CardMedia, CardContent, Typography, Button, TextField, Divider } from '@mui/material';
+import { Box, Card, CardMedia, CardContent, Typography, Divider } from '@mui/material';
 import axios from 'axios';
+import PaymentButton from './PaymentButton';
 
 const EquipmentDetail = () => {
   const { id } = useParams();
@@ -60,6 +61,7 @@ const EquipmentDetail = () => {
           alt={equipment.name}
           sx={{ objectFit: 'cover' }}
         />
+
         <CardContent sx={{ p: 3 }}>
           {/* Equipment Basic Details */}
           <Typography variant="h4" component="div" sx={{ fontWeight: 'bold', mb: 1 }}>
@@ -90,32 +92,10 @@ const EquipmentDetail = () => {
           {/* Payment Section */}
           <Box sx={{ mt: 3 }}>
             <Typography variant="h6" sx={{ mb: 1 }}>Payment Details</Typography>
-            <TextField
-              fullWidth
-              label="Card Number"
-              variant="outlined"
-              sx={{ mb: 2 }}
+            {/* Integrate the PaymentButton component */}
+            <PaymentButton 
+                amount={parseFloat(equipment.rentalPrice.replace(/[^0-9.]/g, ''))} 
             />
-            <TextField
-              fullWidth
-              label="Expiry Date"
-              variant="outlined"
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              fullWidth
-              label="CVV"
-              variant="outlined"
-              sx={{ mb: 2 }}
-            />
-            <Button 
-              variant="contained" 
-              color="primary" 
-              fullWidth 
-              sx={{ py: 1.5, fontWeight: 'bold', '&:hover': { backgroundColor: '#1565c0' } }}
-            >
-              Proceed to Pay
-            </Button>
           </Box>
         </CardContent>
       </Card>
