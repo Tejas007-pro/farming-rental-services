@@ -1,14 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { Box, TextField, Grid, Card, CardMedia, CardContent, CardActions, Typography, Button } from '@mui/material';
 import tractorImage from './sss.jfif';
-import  harvesterImage from './harvester.jfif';
-import  plowImage from './plow.jfif';
+import harvesterImage from './harvester.jfif';
+import plowImage from './plow.jfif';
 
-
-
-// Sample hard-coded equipment data
 const staticEquipment = [
   {
     _id: 'static-1',
@@ -37,69 +34,81 @@ const staticEquipment = [
 ];
 
 const EquipmentListing = () => {
-  // Hooks must be declared inside the component function
   const [equipment, setEquipment] = useState(staticEquipment);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/equipment')
-      .then(response =>  {
-        // Merge fetched data with static data
-        // Optionally, filter out duplicates or replace static items if desired
+      .then(response => {
+        // Merge fetched data with static equipment
         setEquipment([...staticEquipment, ...response.data.equipment]);
       })
       .catch(err => setError('Failed to fetch equipment.'));
   }, []);
 
+  // Filter equipment based on the search query
+  const filteredEquipment = equipment.filter(item =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div style={{
-      display: 'flex',
-      flexWrap: 'wrap',
-      gap: '16px',
-      padding: '16px'
-    }}>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {equipment.map(item => (
-        <div key={item._id} style={{
-          border: '1px solid #ccc',
-          borderRadius: '8px',
-          width: '250px',
-          padding: '16px'
-        }}>
-         <img
-            src={
+    <Box p={4}>
+      <TextField
+        fullWidth
+        placeholder="Search equipment..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        variant="outlined"
+        margin="normal"
+      />
+      {error && (
+        <Typography variant="body1" color="error" sx={{ mb: 2 }}>
+          {error}
+        </Typography>
+      )}
+      <Grid container spacing={4}>
+        {filteredEquipment.map(item => (
+          <Grid item xs={12} sm={6} md={4} key={item._id}>
+            <Card>
+              <CardMedia
+                component="img"
+                height="250"
+                image={
                   item.imageUrl &&
                   typeof item.imageUrl === 'string' &&
                   (item.imageUrl.startsWith('/uploads') || item.imageUrl.startsWith('uploads'))
-                  ? `http://localhost:5000${item.imageUrl.startsWith('/') ? item.imageUrl : '/' + item.imageUrl}`
-                  : item.imageUrl || 'https://via.placeholder.com/150'
-            }
-            alt={item.name}
-            style={{ width: '250px',
-              height: '150px',
-              objectFit: 'cover',  // Ensures the image covers the area while maintaining aspect ratio
-              borderRadius: '4px' }}
-/>
-
-
-          <h3>{item.name}</h3>
-          <p>{item.description}</p>
-          <p><strong>{item.rentalPrice}</strong></p>
-          <Link to={`/equipment/${item._id}`}>
-            <button style={{
-              padding: '8px 16px',
-              backgroundColor: '#007bff',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}>
-              Rent Now
-            </button>
-          </Link>
-        </div>
-      ))}
-    </div>
+                    ? `http://localhost:5000${item.imageUrl.startsWith('/') ? item.imageUrl : '/' + item.imageUrl}`
+                    : item.imageUrl || 'https://via.placeholder.com/150'
+                }
+                alt={item.name}
+              />
+              <CardContent>
+                <Typography variant="h6" component="div">
+                  {item.name}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  {item.description}
+                </Typography>
+                <Typography variant="subtitle1" sx={{ mt: 1 }}>
+                  <strong>{item.rentalPrice}</strong>
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button 
+                  component={Link} 
+                  to={`/equipment/${item._id}`} 
+                  variant="contained" 
+                  color="primary"
+                >
+                  Rent Now
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
   );
 };
 

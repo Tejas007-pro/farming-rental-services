@@ -1,41 +1,72 @@
-// src/EquipmentDetail.js
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-
-// Sample static data (you can replace this with dynamic data or fetch from backend)
-const equipmentData = [
-  { id: '1', name: "Tractor", description: "Reliable tractor for heavy-duty tasks.", rentalPrice: "₹200/day", available: true },
-  { id: '2', name: "Harvester", description: "Efficient harvester for large farms.", rentalPrice: "₹500/day", available: false },
-  { id: '3', name: "Plow", description: "Durable plow for field preparation.", rentalPrice: "₹100/day", available: true },
-];
+import { Box, Card, CardMedia, CardContent, Typography, Button } from '@mui/material';
+import axios from 'axios';
 
 const EquipmentDetail = () => {
   const { id } = useParams();
-  const equipment = equipmentData.find(item => item.id === id);
+  const [equipment, setEquipment] = useState(null);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    axios.get(`http://localhost:5000/api/equipment/${id}`)
+      .then(response => {
+        setEquipment(response.data.equipment);
+      })
+      .catch(err => setError('Failed to fetch equipment details.'));
+  }, [id]);
+
+  if (error) {
+    return (
+      <Box p={4}>
+        <Typography variant="body1" color="error">
+          {error}
+        </Typography>
+      </Box>
+    );
+  }
 
   if (!equipment) {
-    return <p>Equipment not found.</p>;
+    return (
+      <Box p={4}>
+        <Typography variant="body1">
+          Loading...
+        </Typography>
+      </Box>
+    );
   }
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>{equipment.name}</h2>
-      <p>{equipment.description}</p>
-      <p><strong>{equipment.rentalPrice}</strong></p>
-      {equipment.available ? (
-        <div>
-          <h3>This equipment is available for immediate rental.</h3>
-          {/* Add functionality for immediate rental */}
-          <button>Rent Now</button>
-        </div>
-      ) : (
-        <div>
-          <h3>This equipment is not available now.</h3>
-          <p>You can book it for future use:</p>
-          {/* Insert booking form or instructions here */}
-        </div>
-      )}
-    </div>
+    <Box p={4} display="flex" justifyContent="center">
+      <Card sx={{ maxWidth: 600, width: '100%' }}>
+        <CardMedia
+          component="img"
+          height="300"
+          image={
+            equipment.imageUrl && equipment.imageUrl.startsWith('http')
+              ? equipment.imageUrl
+              : `http://localhost:5000/${equipment.imageUrl}`
+          }
+          alt={equipment.name}
+        />
+        <CardContent>
+          <Typography variant="h4" component="div">
+            {equipment.name}
+          </Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ mt: 2 }}>
+            {equipment.description}
+          </Typography>
+          <Typography variant="h6" sx={{ mt: 2 }}>
+            {equipment.rentalPrice}
+          </Typography>
+        </CardContent>
+        <Box p={2}>
+          <Button variant="contained" color="primary" size="large">
+            Rent Now
+          </Button>
+        </Box>
+      </Card>
+    </Box>
   );
 };
 

@@ -1,6 +1,7 @@
 // frontend/src/LoginForm.js
 import React, { useState } from 'react';
 import axios from 'axios';
+import './styles.css';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
