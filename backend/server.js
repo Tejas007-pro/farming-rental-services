@@ -54,7 +54,7 @@ app.get('/api/equipment/search', async (req, res) => {
 
     const equipment = await Equipment.find({
       name: { $regex: query, $options: 'i' }
-    }).select('name');
+    }).select('name _id');
 
     res.json(equipment);
   } catch (error) {
@@ -85,10 +85,17 @@ app.post('/api/equipment', upload.single('image'), async (req, res) => {
   }
 });
 
-// ✅ Fetch All Equipment
+// ✅ Fetch All Equipment with optional filtering
 app.get('/api/equipment', async (req, res) => {
   try {
-    const equipmentList = await Equipment.find();
+    const { query } = req.query; // Read query parameter if provided
+    let equipmentList;
+    if (query) {
+      // Filter equipment by name (case-insensitive search)
+      equipmentList = await Equipment.find({ name: { $regex: query, $options: 'i' } });
+    } else {
+      equipmentList = await Equipment.find();
+    }
     res.status(200).json({ equipment: equipmentList });
   } catch (error) {
     console.error('Error fetching equipment:', error);
@@ -185,7 +192,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-// ✅ Equipment Routes
+// ✅ Equipment Routes (additional routes, if any)
 app.use('/api/equipment', equipmentRoutes);
 
 // Start Server
