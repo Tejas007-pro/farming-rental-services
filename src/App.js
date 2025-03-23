@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react'; // Import useState
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './home'; // Import the Home component
+import Home from './home';
 import EquipmentListing from './equipmentListing';
 import RegistrationForm from './RegistrationForm';
 import LoginForm from './LoginForm';
@@ -13,13 +13,15 @@ import './App.css';
 import './styles.css';
 
 function App() {
+  const [searchQuery, setSearchQuery] = useState(''); // Corrected useState
+
   return (
     <Router>
       <div>
-        <Header />
+        <Header searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/equipment" element={<EquipmentListing />} />
+          <Route path="/equipment" element={<EquipmentListing searchQuery={searchQuery} />} /> {/* Fixed */}
           <Route path="/equipment/:id" element={<EquipmentDetail />} />
           <Route path="/add-equipment" element={<AddEquipment />} />
           <Route path="/register" element={<RegistrationForm />} />

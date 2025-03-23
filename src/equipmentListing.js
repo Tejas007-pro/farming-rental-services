@@ -1,41 +1,29 @@
-// src/EquipmentListing.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Slider from 'react-slick';
 import { Link } from 'react-router-dom';
 import {
   Box,
-  TextField,
   Grid,
   Card,
   CardMedia,
   CardContent,
-  CardActions,
   Typography,
   Button,
   Container,
 } from '@mui/material';
 
-
-
-
-const EquipmentListing = () => {
+const EquipmentListing = () => { // Removed searchQuery prop
   const [equipment, setEquipment] = useState([]);
   const [error, setError] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/equipment')
       .then(response => {
-        setEquipment([ ...response.data.equipment]);
+        setEquipment([...response.data.equipment]);
       })
       .catch(err => setError('Failed to fetch equipment.'));
   }, []);
-
-  // Filter equipment based on the search query
-  const filteredEquipment = equipment.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   // Slider settings for react-slick
   const sliderSettings = {
@@ -50,27 +38,19 @@ const EquipmentListing = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <TextField
-        fullWidth
-        placeholder="Search equipment..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        variant="outlined"
-        margin="normal"
-      />
       {error && (
         <Typography variant="body1" color="error" sx={{ mb: 2 }}>
           {error}
         </Typography>
       )}
-      
+
       {/* Featured Equipment Slider */}
       <Typography variant="h5" sx={{ mb: 2, mt: 4 }}>
         Featured Equipment
       </Typography>
       <Box sx={{ mb: 4 }}>
         <Slider {...sliderSettings}>
-          {filteredEquipment.map(item => (
+          {equipment.map(item => (
             <Box key={item._id} sx={{ px: 2 }}>
               <Card sx={{ position: 'relative', boxShadow: 3, borderRadius: 2 }}>
                 <CardMedia
@@ -111,7 +91,7 @@ const EquipmentListing = () => {
         All Equipment
       </Typography>
       <Grid container spacing={4}>
-        {filteredEquipment.map(item => (
+        {equipment.map(item => (
           <Grid item xs={12} sm={6} md={4} key={item._id}>
             <Card>
               <CardMedia
