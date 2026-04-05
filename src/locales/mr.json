@@ -1,0 +1,31 @@
+{
+    "titles": {
+      "featuredEquipment": "वैशिष्ट्यीकृत उपकरणे",
+      "Affordable Prices": "स्वस्त दर",
+      "allEquipment": "सर्व उपकरणे",
+      "filtered": "गाळलेले",
+      "whyChooseUs": "आम्हाला का निवडावे",
+      "welcomeMessage": "शेती भाडे सेवा मध्ये स्वागत आहे"
+    },
+    "buttons": {
+      "rentNow": "आत्ताच भाड्याने घ्या",
+      "exploreEquipment": "उपकरणे पहा"
+    },
+    "equipment": {
+      "tractor": "ट्रॅक्टर",
+      "Harvester": "हार्वेस्टर",
+      "plow": "नांगर",
+      "baler": "बेलेर",
+      "Seed Drills": "बीज रोपाक",
+      "sprayer": "स्प्रेअर",
+      "rake": "दंताळे",
+      "cultivator":"लागवड करणारा",
+      "Harrow": "हॅरो"
+    },
+    "descriptions": {
+      "affordablePrices": "परवडणाऱ्या दरात उपकरणे भाड्याने घ्या.",
+      "wideVariety": "ट्रॅक्टर, नांगर, हार्वेस्टर आणि बरेच काही निवडा.",
+      "fastBooking": "सुलभ आणि जलद भाडे प्रक्रियेसह त्वरित पुष्टी.",
+      "introMessage": "उच्च-गुणवत्तेची शेती उपकरणे सहज, स्वस्त आणि कार्यक्षमतेने भाड्याने घ्या."
+    }
+}

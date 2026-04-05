@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import Slider from 'react-slick';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -15,6 +16,7 @@ import {
 } from '@mui/material';
 
 const EquipmentListing = () => {
+  const { t } = useTranslation();
   const [equipment, setEquipment] = useState([]);
   const [error, setError] = useState('');
   const location = useLocation();
@@ -61,7 +63,7 @@ const EquipmentListing = () => {
           transition={{ duration: 0.8 }}
         >
           <Typography variant="h5" sx={{ mb: 2, mt: 4, color: 'primary.main' }}>
-            Featured Equipment
+            {t("titles.featuredEquipment")}
           </Typography>
           <Box sx={{ mb: 4 }}>
             <Slider {...sliderSettings}>
@@ -92,7 +94,7 @@ const EquipmentListing = () => {
                         p: 1,
                       }}
                     >
-                      <Typography variant="h6">{item.name}</Typography>
+                      <Typography variant="h6">{t(`equipment.${item.name.toLowerCase()}`, item.name)}</Typography>
                       <Typography variant="subtitle1">
                         ₹{item.rentalPrice}/day
                       </Typography>
@@ -112,7 +114,7 @@ const EquipmentListing = () => {
         transition={{ duration: 0.8 }}
       >
         <Typography variant="h5" sx={{ mb: 2, mt: isSearching ? 4 : 0, color: 'primary.main' }}>
-          All Equipment {isSearching && `(Filtered: ${searchQuery})`}
+          {t("titles.allEquipment")} {isSearching && `(${t("titles.filtered")}: ${searchQuery})`}
         </Typography>
         <Grid container spacing={4}>
           {equipment.map(item => (
@@ -126,14 +128,14 @@ const EquipmentListing = () => {
                       item.imageUrl &&
                       typeof item.imageUrl === 'string' &&
                       (item.imageUrl.startsWith('/uploads') || item.imageUrl.startsWith('uploads'))
-                        ? `http://localhost:5000${item.imageUrl.startsWith('/') ? item.imageUrl : '/' + item.imageUrl}`
+                        ? `http://192.168.98.48:5000${item.imageUrl.startsWith('/') ? item.imageUrl : '/' + item.imageUrl}`
                         : item.imageUrl || 'https://via.placeholder.com/150'
                     }
                     alt={item.name}
                   />
                   <CardContent>
                     <Typography variant="h6" component="div">
-                      {item.name}
+                      {t(`equipment.${item.name.toLowerCase()}`, item.name)}
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
                       {item.description}
@@ -150,7 +152,7 @@ const EquipmentListing = () => {
                       color="primary"
                       fullWidth
                     >
-                      Rent Now
+                      {t("buttons.rentNow")}
                     </Button>
                   </Box>
                 </Card>

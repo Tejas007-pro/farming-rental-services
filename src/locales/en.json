@@ -1,0 +1,32 @@
+{
+    "titles": {
+      "featuredEquipment": "Featured Equipment",
+      "Affordable Prices": "Affordable Prices",
+      "allEquipment": "All Equipment",
+      "filtered": "Filtered",
+      "whyChooseUs": "Why Choose Us",
+      "welcomeMessage": "Welcome to Farming Rental Service"
+    },
+    "buttons": {
+      "rentNow": "Rent Now",
+      "exploreEquipment": "Explore Equipment"
+    },
+    "equipment": {
+      "tractor": "Tractor",
+      "Harvester": "Harvester",
+      "plow": "Plow",
+      "baler": "Baler",
+      "Seed Drills": "Seed Drills",
+      "sprayer": "sprayer",
+      "rake": "rake",
+      "cultivator": "cultivator",
+      "Harrow": "Harrow"
+      
+    },
+    "descriptions": {
+      "affordablePrices": "Rent equipment at budget-friendly rates.",
+      "wideVariety": "Choose from tractors, plows, harvesters, and more.",
+      "fastBooking": "Easy and quick rental process with instant confirmation.",
+      "introMessage": "Rent high-quality farming equipment easily, affordably, and efficiently."
+    }
+}
