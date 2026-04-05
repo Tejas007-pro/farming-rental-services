@@ -9,7 +9,6 @@ import LoginForm from './LoginForm';
 import Dashboard from './Dashboard';
 import EquipmentDetail from './EquipmentDetail';
 import AddEquipment from './AddEquipment';
-import BookingForm from './BookingForm';
 import Header from './Header'; // Using the Material UI Header component
 import './App.css';
 import './styles.css';
@@ -43,7 +42,6 @@ function App() {
           <Route path="/register" element={<RegistrationForm />} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/booking" element={<BookingForm />} />
         </Routes>
       </div>
     </Router>

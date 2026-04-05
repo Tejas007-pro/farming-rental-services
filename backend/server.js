@@ -1,13 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
 
 const Equipment = require('./Equipment');
-const Booking = require('./Booking');
 const equipmentRoutes = require('./EquipmentRoutes'); // Import equipment routes
 
 const app = express();
@@ -15,11 +14,13 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3000'
+}));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connect to MongoDB
-const MONGODB_URI = 'mongodb+srv://fegadetejas0012:fegadetejas007%40.com@rental-services.h4cap.mongodb.net/users?retryWrites=true&w=majority&appName=rental-services';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://fegadetejas0012:fegadetejas007%40.com@rental-services.h4cap.mongodb.net/users?retryWrites=true&w=majority&appName=rental-services';
 
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
@@ -103,40 +104,7 @@ app.get('/api/equipment', async (req, res) => {
   }
 });
 
-// ✅ Create Booking
-app.post('/api/bookings', async (req, res) => {
-  const { equipmentId, userId, startDate, endDate } = req.body;
-  if (!equipmentId || !userId || !startDate || !endDate) {
-    return res.status(400).json({ error: 'Please provide all required booking details.' });
-  }
 
-  try {
-    const newBooking = new Booking({
-      equipmentId,
-      userId,
-      startDate,
-      endDate,
-      status: 'pending',
-    });
-
-    await newBooking.save();
-    res.status(201).json({ message: 'Booking created successfully!', booking: newBooking });
-  } catch (error) {
-    console.error('Booking creation error:', error);
-    res.status(500).json({ error: 'Server error during booking creation.' });
-  }
-});
-
-// ✅ Fetch All Bookings
-app.get('/api/bookings', async (req, res) => {
-  try {
-    const bookings = await Booking.find().populate('userId', 'username email');
-    res.status(200).json({ bookings });
-  } catch (error) {
-    console.error('Error fetching bookings:', error);
-    res.status(500).json({ error: 'Server error fetching bookings.' });
-  }
-});
 
 // ✅ User Registration
 app.post('/api/register', async (req, res) => {
@@ -196,7 +164,7 @@ app.post('/api/login', async (req, res) => {
 app.use('/api/equipment', equipmentRoutes);
 
 // Start Server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server is running on port ${PORT}`);
 });
 

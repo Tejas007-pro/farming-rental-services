@@ -110,7 +110,6 @@ const Header = () => {
           <Button color="inherit" component={Link} to="/equipment">Equipment</Button>
           <Button color="inherit" component={Link} to="/add-equipment">Add Equipment</Button>
           <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
-          <Button color="inherit" component={Link} to="/booking">Booking</Button>
           <Button component={Link} to="/login" sx={curvedButtonStyle}>Login</Button>
           <Button component={Link} to="/register" sx={curvedButtonStyle}>Sign Up</Button>
         </Box>

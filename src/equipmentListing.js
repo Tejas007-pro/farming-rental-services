@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import Slider from 'react-slick';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { getImageUrl } from './utils/imageUrlHelper';
+import API_BASE_URL from './config';
 import {
   Box,
   Grid,
@@ -26,8 +28,8 @@ const EquipmentListing = () => {
 
   useEffect(() => {
     const url = searchQuery 
-      ? `http://localhost:5000/api/equipment?query=${encodeURIComponent(searchQuery)}`
-      : 'http://localhost:5000/api/equipment';
+      ? `${API_BASE_URL}/api/equipment?query=${encodeURIComponent(searchQuery)}`
+      : `${API_BASE_URL}/api/equipment`;
       
     axios.get(url)
       .then(response => {
@@ -73,13 +75,7 @@ const EquipmentListing = () => {
                     <CardMedia
                       component="img"
                       height="300"
-                      image={
-                        item.imageUrl &&
-                        typeof item.imageUrl === 'string' &&
-                        (item.imageUrl.startsWith('/uploads') || item.imageUrl.startsWith('uploads'))
-                          ? `http://localhost:5000${item.imageUrl.startsWith('/') ? item.imageUrl : '/' + item.imageUrl}`
-                          : item.imageUrl || 'https://via.placeholder.com/150'
-                      }
+                      image={getImageUrl(item.imageUrl)}
                       alt={item.name}
                       sx={{ objectFit: 'cover' }}
                     />

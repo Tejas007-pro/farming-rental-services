@@ -161,7 +161,7 @@ const Home = () => {
 
       {/* Footer Section */}
       <Footer />
-    </Box>
+    </>
   );
 };
 

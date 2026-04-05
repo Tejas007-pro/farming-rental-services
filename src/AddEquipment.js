@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Container, Card, CardContent, Typography, TextField, Button, Box } from '@mui/material';
 import { motion } from 'framer-motion';
+import { getImageUrl } from './utils/imageUrlHelper';
+import API_BASE_URL from './config';
 
 const AddEquipment = () => {
   const [formData, setFormData] = useState({
@@ -35,7 +37,7 @@ const AddEquipment = () => {
       if (selectedFile) {
         data.append('image', selectedFile);
       }
-      const response = await axios.post('http://localhost:5000/api/equipment', data, {
+      const response = await axios.post(`${API_BASE_URL}/api/equipment`, data, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
