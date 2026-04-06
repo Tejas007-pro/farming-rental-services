@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import Slider from 'react-slick';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { getImageUrl } from './utils/imageUrlHelper';
 import API_BASE_URL from './config';
 import {
@@ -16,7 +16,6 @@ import {
   Button,
   Container,
   TextField,
-  Chip,
   CircularProgress,
   InputAdornment,
   IconButton,
@@ -95,7 +94,6 @@ const EquipmentListing = () => {
     navigate('/equipment');
   };
 
-  // Slider settings for react-slick
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -208,60 +206,55 @@ const EquipmentListing = () => {
             </motion.div>
           )}
 
-      {/* All Equipment Grid */}
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        <Typography variant="h5" sx={{ mb: 2, mt: isSearching ? 4 : 0, color: 'primary.main' }}>
-          {t("titles.allEquipment")} {isSearching && `(${t("titles.filtered")}: ${searchQuery})`}
-        </Typography>
-        <Grid container spacing={4}>
-          {equipment.map(item => (
-            <Grid item xs={12} sm={6} md={4} key={item._id}>
-              <motion.div whileHover={{ scale: 1.03 }} transition={{ duration: 0.3 }}>
-                <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
-                  <CardMedia
-                    component="img"
-                    height="250"
-                    image={
-                      item.imageUrl &&
-                      typeof item.imageUrl === 'string' &&
-                      (item.imageUrl.startsWith('/uploads') || item.imageUrl.startsWith('uploads'))
-                        ? `http://192.168.98.48:5000${item.imageUrl.startsWith('/') ? item.imageUrl : '/' + item.imageUrl}`
-                        : item.imageUrl || 'https://via.placeholder.com/150'
-                    }
-                    alt={item.name}
-                  />
-                  <CardContent>
-                    <Typography variant="h6" component="div">
-                      {t(`equipment.${item.name.toLowerCase()}`, item.name)}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {item.description}
-                    </Typography>
-                    <Typography variant="subtitle1" sx={{ mt: 1 }}>
-                      <strong>₹{item.rentalPrice}/day</strong>
-                    </Typography>
-                  </CardContent>
-                  <Box sx={{ p: 2 }}>
-                    <Button 
-                      component={Link} 
-                      to={`/equipment/${item._id}`} 
-                      variant="contained" 
-                      color="primary"
-                      fullWidth
-                    >
-                      {t("buttons.rentNow")}
-                    </Button>
-                  </Box>
-                </Card>
-              </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <Typography variant="h5" sx={{ mb: 2, mt: isSearching ? 4 : 0, color: 'primary.main' }}>
+              {t("titles.allEquipment")} {isSearching && `(${t("titles.filtered")}: ${searchTerm})`}
+            </Typography>
+            <Grid container spacing={4}>
+              {filteredEquipment.map(item => (
+                <Grid item xs={12} sm={6} md={4} key={item._id}>
+                  <motion.div whileHover={{ scale: 1.03 }} transition={{ duration: 0.3 }}>
+                    <Card sx={{ borderRadius: 2, boxShadow: 3 }}>
+                      <CardMedia
+                        component="img"
+                        height="250"
+                        image={getImageUrl(item.imageUrl)}
+                        alt={item.name}
+                      />
+                      <CardContent>
+                        <Typography variant="h6" component="div">
+                          {t(`equipment.${item.name.toLowerCase()}`, item.name)}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          {item.description}
+                        </Typography>
+                        <Typography variant="subtitle1" sx={{ mt: 1 }}>
+                          <strong>₹{item.rentalPrice}/day</strong>
+                        </Typography>
+                      </CardContent>
+                      <Box sx={{ p: 2 }}>
+                        <Button 
+                          component={Link} 
+                          to={`/equipment/${item._id}`} 
+                          variant="contained" 
+                          color="primary"
+                          fullWidth
+                        >
+                          {t("buttons.rentNow")}
+                        </Button>
+                      </Box>
+                    </Card>
+                  </motion.div>
+                </Grid>
+              ))}
             </Grid>
-          ))}
-        </Grid>
-      </motion.div>
+          </motion.div>
+        </>
+      )}
     </Container>
   );
 };

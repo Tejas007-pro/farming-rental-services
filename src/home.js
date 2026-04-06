@@ -59,105 +59,107 @@ const Home = () => {
   ];
 
   return (
-    <Box sx={{ backgroundColor: "#f9f9f9", minHeight: "100vh" }}>
-      {/* Hero Section */}
-      <motion.div
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        <Box
-          display="flex"
-          flexDirection="column"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="90vh"
-          p={4}
-          mt={8}
-          sx={{
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            color: "black",
-            textAlign: "center",
-            borderRadius: 3,
-            boxShadow: "0px 4px 10px rgba(0,0,0,0.3)",
-            maxWidth: "90%",
-            margin: "auto",
-            backgroundColor: "#ffffff",
-          }}
+    <>
+      <Box sx={{ backgroundColor: "#f9f9f9", minHeight: "100vh" }}>
+        {/* Hero Section */}
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
         >
-          <Typography variant="h3" fontWeight="bold" gutterBottom>
-            {translatedTexts.welcome || t("Welcome to Farming Rental Service")}
-          </Typography>
-          <Typography variant="h6" gutterBottom maxWidth="600px">
-            {translatedTexts.description || t("Rent high-quality farming equipment easily, affordably, and efficiently.")}
-          </Typography>
-          <Button
-            component={Link}
-            to="/equipment"
-            variant="contained"
-            color="secondary"
-            size="large"
-            sx={{ mt: 3 }}
+          <Box
+            display="flex"
+            flexDirection="column"
+            justifyContent="center"
+            alignItems="center"
+            minHeight="90vh"
+            p={4}
+            mt={8}
+            sx={{
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              color: "black",
+              textAlign: "center",
+              borderRadius: 3,
+              boxShadow: "0px 4px 10px rgba(0,0,0,0.3)",
+              maxWidth: "90%",
+              margin: "auto",
+              backgroundColor: "#ffffff",
+            }}
           >
-            {translatedTexts.exploreEquipment || t("Explore Equipment")}
-          </Button>
-        </Box>
-      </motion.div>
+            <Typography variant="h3" fontWeight="bold" gutterBottom>
+              {translatedTexts.welcome || t("Welcome to Farming Rental Service")}
+            </Typography>
+            <Typography variant="h6" gutterBottom maxWidth="600px">
+              {translatedTexts.description || t("Rent high-quality farming equipment easily, affordably, and efficiently.")}
+            </Typography>
+            <Button
+              component={Link}
+              to="/equipment"
+              variant="contained"
+              color="secondary"
+              size="large"
+              sx={{ mt: 3 }}
+            >
+              {translatedTexts.exploreEquipment || t("Explore Equipment")}
+            </Button>
+          </Box>
+        </motion.div>
 
-      {/* Why Choose Us Section */}
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8 }}
-      >
-        <Box textAlign="center" mt={10} mb={6}>
-          <Typography variant="h4" fontWeight="bold" gutterBottom>
-            {translatedTexts.whyChooseUs || t("Why Choose Us")}
-          </Typography>
-        </Box>
+        {/* Why Choose Us Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+        >
+          <Box textAlign="center" mt={10} mb={6}>
+            <Typography variant="h4" fontWeight="bold" gutterBottom>
+              {translatedTexts.whyChooseUs || t("Why Choose Us")}
+            </Typography>
+          </Box>
 
-        <Grid container spacing={5} justifyContent="center" sx={{ px: 5 }}>
-          {features.map((feature, index) => (
-            <Grid item key={index} xs={12} sm={6} md={4}>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-              >
-                <Paper
-                  elevation={6}
-                  sx={{
-                    p: 5,
-                    textAlign: "center",
-                    bgcolor: "#ffffff",
-                    borderRadius: 4,
-                    boxShadow: "0px 5px 15px rgba(0,0,0,0.3)",
-                    minHeight: "180px",
-                  }}
+          <Grid container spacing={5} justifyContent="center" sx={{ px: 5 }}>
+            {features.map((feature, index) => (
+              <Grid item key={index} xs={12} sm={6} md={4}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.2 }}
                 >
-                  {feature.icon}
-                  <Typography variant="h6" fontWeight="bold" mt={2}>
-                    {feature.title}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: "black", mt: 1 }}>
-                    {feature.description}
-                  </Typography>
-                </Paper>
-              </motion.div>
-            </Grid>
-          ))}
-        </Grid>
-      </motion.div>
+                  <Paper
+                    elevation={6}
+                    sx={{
+                      p: 5,
+                      textAlign: "center",
+                      bgcolor: "#ffffff",
+                      borderRadius: 4,
+                      boxShadow: "0px 5px 15px rgba(0,0,0,0.3)",
+                      minHeight: "180px",
+                    }}
+                  >
+                    {feature.icon}
+                    <Typography variant="h6" fontWeight="bold" mt={2}>
+                      {feature.title}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: "black", mt: 1 }}>
+                      {feature.description}
+                    </Typography>
+                  </Paper>
+                </motion.div>
+              </Grid>
+            ))}
+          </Grid>
+        </motion.div>
 
-      {/* Special Offers Section */}
-      <Box sx={{ backgroundColor: "#f2f2f2", py: 5 }}>
-        <SpecialOffers />
+        {/* Special Offers Section */}
+        <Box sx={{ backgroundColor: "#f2f2f2", py: 5 }}>
+          <SpecialOffers />
+        </Box>
+
+        {/* Testimonials Section */}
+        <Testimonials />
       </Box>
-
-      {/* Testimonials Section */}
-      <Testimonials />
 
       {/* Footer Section */}
       <Footer />

@@ -3,6 +3,8 @@ import { useParams } from 'react-router-dom';
 import { Box, Card, CardMedia, CardContent, Typography, Divider } from '@mui/material';
 import axios from 'axios';
 import PaymentButton from './PaymentButton';
+import API_BASE_URL from './config';  // ✅ ADDED
+import { getImageUrl } from './utils/imageUrlHelper';  // ✅ ADDED
 
 const EquipmentDetail = () => {
   const { id } = useParams();
@@ -11,7 +13,7 @@ const EquipmentDetail = () => {
 
   useEffect(() => {
     console.log("Equipment ID from URL:", id);
-    axios.get(`http://localhost:5000/api/Equipment/${id}`)
+    axios.get(`${API_BASE_URL}/api/equipment/${id}`)  // ✅ Already fixed
       .then(response => {
         setEquipment(response.data.equipment);
       })
@@ -53,11 +55,7 @@ const EquipmentDetail = () => {
         <CardMedia
           component="img"
           height="300"
-          image={
-            equipment.imageUrl && equipment.imageUrl.startsWith('http')
-              ? equipment.imageUrl
-              : `http://localhost:5000/${equipment.imageUrl}`
-          }
+          image={getImageUrl(equipment.imageUrl)}  // ✅ FIXED
           alt={equipment.name}
           sx={{ objectFit: 'cover' }}
         />
@@ -92,7 +90,6 @@ const EquipmentDetail = () => {
           {/* Payment Section */}
           <Box sx={{ mt: 3 }}>
             <Typography variant="h6" sx={{ mb: 1 }}>Payment Details</Typography>
-            {/* Integrate the PaymentButton component */}
             <PaymentButton 
                 amount={parseFloat(equipment.rentalPrice.replace(/[^0-9.]/g, ''))} 
             />
