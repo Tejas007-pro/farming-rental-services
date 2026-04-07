@@ -426,7 +426,7 @@ const ImagePreviewCard = ({ image, index, isPrimary, onSetPrimary, onDelete, onV
           objectFit: 'cover',
         }}
       />
-      
+
       {/* Primary Badge */}
       {isPrimary && (
         <Chip
@@ -444,7 +444,7 @@ const ImagePreviewCard = ({ image, index, isPrimary, onSetPrimary, onDelete, onV
           }}
         />
       )}
-      
+
       {/* Action Buttons */}
       <Box
         sx={{
@@ -482,7 +482,7 @@ const ImagePreviewCard = ({ image, index, isPrimary, onSetPrimary, onDelete, onV
           </IconButton>
         </Tooltip>
       </Box>
-      
+
       {/* Drag Handle */}
       <Box
         sx={{
@@ -594,10 +594,10 @@ const AddEquipment = () => {
   const [showDraftSnackbar, setShowDraftSnackbar] = useState(false);
   const [imageViewDialog, setImageViewDialog] = useState({ open: false, image: null });
   const [successDialog, setSuccessDialog] = useState(false);
-  
+
   const fileInputRef = useRef(null);
   const isMobile = useMediaQuery('(max-width:900px)');
-  
+
   // Form Data State
   const [formData, setFormData] = useState({
     // Basic Info
@@ -605,7 +605,7 @@ const AddEquipment = () => {
     category: '',
     condition: '',
     description: '',
-    
+
     // Specifications
     brand: '',
     model: '',
@@ -615,11 +615,11 @@ const AddEquipment = () => {
     weight: '',
     dimensions: '',
     features: [],
-    
+
     // Images
     images: [],
     primaryImageIndex: 0,
-    
+
     // Pricing
     pricePerHour: '',
     pricePerDay: '',
@@ -628,7 +628,7 @@ const AddEquipment = () => {
     securityDeposit: '',
     minimumRentalPeriod: 'day',
     negotiable: false,
-    
+
     // Location
     address: '',
     village: '',
@@ -640,11 +640,11 @@ const AddEquipment = () => {
     deliveryRadius: 10,
     contactPhone: '',
     alternatePhone: '',
-    
+
     // Availability
     available: true,
     quantity: 1,
-    
+
     // Terms
     termsAccepted: false,
     guidelines: '',
@@ -675,7 +675,7 @@ const AddEquipment = () => {
       const draftData = { ...formData, images: [] }; // Don't save images
       localStorage.setItem('equipmentDraft', JSON.stringify(draftData));
     }, 2000);
-    
+
     return () => clearTimeout(timer);
   }, [formData]);
 
@@ -686,7 +686,7 @@ const AddEquipment = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
-    
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -716,7 +716,7 @@ const AddEquipment = () => {
       name: file.name,
       size: file.size,
     }));
-    
+
     setFormData(prev => ({
       ...prev,
       images: [...prev.images, ...newImages].slice(0, 10), // Max 10 images
@@ -747,7 +747,7 @@ const AddEquipment = () => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragActive(false);
-    
+
     const files = e.dataTransfer.files;
     if (files && files.length > 0) {
       const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
@@ -770,8 +770,8 @@ const AddEquipment = () => {
       return {
         ...prev,
         images: newImages,
-        primaryImageIndex: prev.primaryImageIndex >= newImages.length 
-          ? Math.max(0, newImages.length - 1) 
+        primaryImageIndex: prev.primaryImageIndex >= newImages.length
+          ? Math.max(0, newImages.length - 1)
           : prev.primaryImageIndex,
       };
     });
@@ -817,28 +817,28 @@ const AddEquipment = () => {
         if (!formData.description.trim()) newErrors.description = 'Description is required';
         else if (formData.description.length < 50) newErrors.description = 'Description should be at least 50 characters';
         break;
-        
+
       case 1: // Specifications
         if (!formData.brand.trim()) newErrors.brand = 'Brand is required';
         if (!formData.fuelType) newErrors.fuelType = 'Please select fuel type';
         break;
-        
+
       case 2: // Images
         if (formData.images.length === 0) newErrors.images = 'Please upload at least one image';
         break;
-        
+
       case 3: // Pricing
         if (!formData.pricePerDay) newErrors.pricePerDay = 'Daily rental price is required';
         if (!formData.securityDeposit) newErrors.securityDeposit = 'Security deposit is required';
         break;
-        
+
       case 4: // Location
         if (!formData.district.trim()) newErrors.district = 'District is required';
         if (!formData.state) newErrors.state = 'State is required';
         if (!formData.contactPhone) newErrors.contactPhone = 'Contact phone is required';
         else if (!/^[6-9]\d{9}$/.test(formData.contactPhone)) newErrors.contactPhone = 'Invalid phone number';
         break;
-        
+
       case 5: // Preview
         if (!formData.termsAccepted) newErrors.termsAccepted = 'Please accept the terms and guidelines';
         break;
@@ -925,22 +925,22 @@ const AddEquipment = () => {
 
     try {
       const data = new FormData();
-      
+
       // Append text fields
       Object.keys(formData).forEach(key => {
         if (key !== 'images' && key !== 'features' && key !== 'coordinates') {
           data.append(key, formData[key]);
         }
       });
-      
+
       // Append features as JSON
       data.append('features', JSON.stringify(formData.features));
-      
+
       // Append coordinates
       if (formData.coordinates) {
         data.append('coordinates', JSON.stringify(formData.coordinates));
       }
-      
+
       // Append images
       formData.images.forEach((image, index) => {
         data.append('images', image.file);
@@ -949,17 +949,18 @@ const AddEquipment = () => {
         }
       });
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Uncomment for real API
-      // const response = await axios.post(`${API_BASE_URL}/api/equipment`, data, {
-      //   headers: { 'Content-Type': 'multipart/form-data' }
-      // });
+      // Actual API Call
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${API_BASE_URL}/api/equipment`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          ...(token && { 'Authorization': `Bearer ${token}` })
+        }
+      });
 
       // Clear draft
       localStorage.removeItem('equipmentDraft');
-      
+
       // Show success
       setSuccessDialog(true);
 
@@ -1378,7 +1379,7 @@ const AddEquipment = () => {
                   accept="image/*"
                   onChange={handleFileInputChange}
                 />
-                
+
                 {formData.images.length === 0 ? (
                   <>
                     <Avatar
@@ -1418,7 +1419,7 @@ const AddEquipment = () => {
                         />
                       </Grid>
                     ))}
-                    
+
                     {/* Add More Button */}
                     {formData.images.length < 10 && (
                       <Grid item xs={6} sm={4} md={3}>
@@ -1949,7 +1950,7 @@ const AddEquipment = () => {
                   <Typography variant="h5" sx={{ fontWeight: 700, color: theme.text.primary, mb: 1 }}>
                     {formData.name || 'Equipment Name'}
                   </Typography>
-                  
+
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                     <LocationIcon sx={{ fontSize: 18, color: theme.text.light }} />
                     <Typography variant="body2" sx={{ color: theme.text.secondary }}>
@@ -2167,14 +2168,14 @@ const AddEquipment = () => {
                   <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.85)', mb: 3 }}>
                     List your equipment and start earning
                   </Typography>
-                  
+
                   {/* Progress Steps */}
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                     {steps.map((step, index) => {
                       const StepIcon = step.icon;
                       const isCompleted = index < activeStep;
                       const isActive = index === activeStep;
-                      
+
                       return (
                         <Box
                           key={index}
@@ -2197,10 +2198,10 @@ const AddEquipment = () => {
                             sx={{
                               width: 32,
                               height: 32,
-                              bgcolor: isCompleted 
-                                ? 'rgba(255,255,255,0.9)' 
-                                : isActive 
-                                  ? 'rgba(255,255,255,0.3)' 
+                              bgcolor: isCompleted
+                                ? 'rgba(255,255,255,0.9)'
+                                : isActive
+                                  ? 'rgba(255,255,255,0.3)'
                                   : 'rgba(255,255,255,0.1)',
                               color: isCompleted ? theme.success : '#fff',
                             }}
@@ -2511,7 +2512,7 @@ const AddEquipment = () => {
       </Container>
 
       {/* ==================== DIALOGS & SNACKBARS ==================== */}
-      
+
       {/* Image View Dialog */}
       <Dialog
         open={imageViewDialog.open}
