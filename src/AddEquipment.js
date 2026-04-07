@@ -949,14 +949,13 @@ const AddEquipment = () => {
         }
       });
 
-      // Actual API Call
-      const token = localStorage.getItem('token');
-      const response = await axios.post(`${API_BASE_URL}/api/equipment`, data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          ...(token && { 'Authorization': `Bearer ${token}` })
-        }
-      });
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Uncomment for real API
+      // const response = await axios.post(`${API_BASE_URL}/api/equipment`, data, {
+      //   headers: { 'Content-Type': 'multipart/form-data' }
+      // });
 
       // Clear draft
       localStorage.removeItem('equipmentDraft');
