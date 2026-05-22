@@ -132,9 +132,17 @@ const sortOptions = [
 // ==================== IMAGE URL HELPER ====================
 const getImageUrl = (imageUrl) => {
   if (!imageUrl) return '/placeholder-equipment.jpg';
-  if (imageUrl.startsWith('http')) return imageUrl;
-  if (imageUrl.startsWith('/')) return `${API_BASE_URL}${imageUrl}`;
-  return `${API_BASE_URL}/${imageUrl}`;
+  
+  // ✅ Fix Windows backslash
+  const fixedUrl = imageUrl.replace(/\\/g, '/');
+  
+  if (fixedUrl.startsWith('http://') || fixedUrl.startsWith('https://')) {
+    return fixedUrl;
+  }
+  if (fixedUrl.startsWith('/')) {
+    return `${API_BASE_URL}${fixedUrl}`;
+  }
+  return `${API_BASE_URL}/${fixedUrl}`;
 };
 
 // ==================== EQUIPMENT CARD COMPONENT ====================

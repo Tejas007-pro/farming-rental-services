@@ -45,16 +45,36 @@ const upload = multer({
 
 // Build filter query from request params
 const buildFilterQuery = (params) => {
-  const query = { status: { $ne: 'deleted' } };
+  // ✅ CHANGE THIS LINE - include docs with no status OR status = active
+  const query = {
+    $or: [
+      { status: 'active' },
+      { status: { $exists: false } },  // ← includes your OLD data
+      { status: null },
+    ]
+  };
 
   // Text search
   if (params.query || params.search) {
     const searchTerm = params.query || params.search;
-    query.$or = [
-      { name: { $regex: searchTerm, $options: 'i' } },
-      { description: { $regex: searchTerm, $options: 'i' } },
-      { 'specifications.brand': { $regex: searchTerm, $options: 'i' } },
+    query.$and = [
+      {
+        $or: [
+          { name: { $regex: searchTerm, $options: 'i' } },
+          { description: { $regex: searchTerm, $options: 'i' } },
+          { 'specifications.brand': { $regex: searchTerm, $options: 'i' } },
+        ]
+      }
     ];
+    // Remove the $or we set above to avoid conflict
+    delete query.$or;
+    query.$and.push({
+      $or: [
+        { status: 'active' },
+        { status: { $exists: false } },
+        { status: null },
+      ]
+    });
   }
 
   // Category filter
@@ -118,13 +138,6 @@ const buildFilterQuery = (params) => {
     query.isVerified = true;
   }
 
-  // Status filter (for admin)
-  if (params.status) {
-    query.status = params.status;
-  } else {
-    query.status = 'active';
-  }
-
   return query;
 };
 
@@ -173,8 +186,7 @@ router.get('/', async (req, res) => {
     const limitNum = Math.min(50, Math.max(1, Number(limit)));
     const skip = (pageNum - 1) * limitNum;
 
-    // Execute queries in parallel
-    const [equipment, totalCount] = await Promise.all([
+    const [equipmentRaw, totalCount] = await Promise.all([
       Equipment.find(query)
         .sort(sortQuery)
         .skip(skip)
@@ -184,7 +196,34 @@ router.get('/', async (req, res) => {
       Equipment.countDocuments(query),
     ]);
 
-    // Calculate pagination info
+    // ✅ Fix old data format before sending to frontend
+    const equipment = equipmentRaw.map(item => ({
+      ...item,
+      // Fix rentalPrice string to number
+      rentalPrice: Number(item.rentalPrice) || 0,
+      // Fix Windows backslash in imageUrl
+      imageUrl: item.imageUrl
+        ? item.imageUrl.replace(/\\/g, '/')
+        : '/placeholder-equipment.jpg',
+      // Fix images array backslashes
+      images: (item.images || []).map(img => ({
+        ...img,
+        url: img.url ? img.url.replace(/\\/g, '/') : '',
+      })),
+      // Add missing fields with defaults
+      category: item.category || 'other',
+      condition: item.condition || 'good',
+      location: item.location || '',
+      locationDetails: item.locationDetails || {},
+      specifications: item.specifications || {},
+      delivery: item.delivery || { available: false },
+      ratings: item.ratings || { average: 0, count: 0 },
+      stats: item.stats || { views: 0 },
+      isVerified: item.isVerified || false,
+      isFeatured: item.isFeatured || false,
+      available: item.available !== undefined ? item.available : true,
+    }));
+
     const totalPages = Math.ceil(totalCount / limitNum);
 
     res.json({
@@ -365,7 +404,8 @@ router.get('/stats', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const equipment = await Equipment.findById(req.params.id)
-      .populate('owner', 'name profileImage phone email');
+      .populate('owner', 'name profileImage phone email')
+      .lean(); // ✅ add .lean() so we can modify it
 
     if (!equipment) {
       return res.status(404).json({
@@ -374,13 +414,33 @@ router.get('/:id', async (req, res) => {
       });
     }
 
-    // Increment view count
-    equipment.stats.views += 1;
-    await equipment.save();
+    // ✅ Fix old data format
+    const fixedEquipment = {
+      ...equipment,
+      rentalPrice: Number(equipment.rentalPrice) || 0,
+      imageUrl: equipment.imageUrl
+        ? equipment.imageUrl.replace(/\\/g, '/')
+        : '/placeholder-equipment.jpg',
+      images: (equipment.images || []).map(img => ({
+        ...img,
+        url: img.url ? img.url.replace(/\\/g, '/') : '',
+      })),
+      category: equipment.category || 'other',
+      condition: equipment.condition || 'good',
+      ratings: equipment.ratings || { average: 0, count: 0 },
+      stats: equipment.stats || { views: 0 },
+      delivery: equipment.delivery || { available: false },
+      specifications: equipment.specifications || {},
+    };
+
+    // ✅ Increment view count separately (since we used .lean())
+    await Equipment.findByIdAndUpdate(req.params.id, {
+      $inc: { 'stats.views': 1 }
+    });
 
     res.json({
       success: true,
-      equipment,
+      equipment: fixedEquipment,
     });
   } catch (error) {
     console.error('Error fetching equipment:', error);
