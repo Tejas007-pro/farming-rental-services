@@ -2,54 +2,50 @@
 const mongoose = require('mongoose');
 
 const equipmentSchema = new mongoose.Schema({
+
   // ==================== BASIC INFO ====================
   name: {
     type: String,
-    required: [true, 'Equipment name is required'],
+    required: [true, 'Equipment name is required'], // ✅ keep required (old data has it)
     trim: true,
     maxlength: 100,
   },
 
   category: {
     type: String,
-    required: [true, 'Category is required'],
+    required: false,       // ✅ CHANGED - old data has no category
+    default: 'other',      // ✅ ADDED - default for old data
     enum: [
-      'tractors',
-      'harvesters',
-      'tillers',
-      'plows',
-      'seeders',
-      'sprayers',
-      'irrigation',
-      'threshers',
-      'balers',
-      'loaders',
-      'trailers',
-      'other',
+      'tractors', 'harvesters', 'tillers',
+      'plows', 'seeders', 'sprayers',
+      'irrigation', 'threshers', 'balers',
+      'loaders', 'trailers', 'other',
     ],
   },
 
   condition: {
     type: String,
     enum: ['new', 'excellent', 'good', 'fair', 'needs_repair'],
-    default: 'good',
+    default: 'good',       // ✅ already has default - OK
   },
 
   description: {
     type: String,
-    required: [true, 'Description is required'],
+    required: false,       // ✅ CHANGED - safer for old data
+    default: '',
     maxlength: 2000,
   },
 
   // ==================== SPECIFICATIONS ====================
   specifications: {
-    brand: { type: String, trim: true },
-    model: { type: String, trim: true },
+    brand: { type: String, trim: true, default: '' },
+    model: { type: String, trim: true, default: '' },
     year: { type: Number },
     horsePower: { type: Number },
     fuelType: {
       type: String,
-      enum: ['diesel', 'petrol', 'electric', 'manual', 'solar'],
+      enum: ['diesel', 'petrol', 'electric', 'manual', 'solar', ''],
+      default: '',
     },
     weight: { type: Number },
     dimensions: { type: String },
@@ -57,49 +53,58 @@ const equipmentSchema = new mongoose.Schema({
   },
 
   // ==================== IMAGES ====================
-  // Single image (backward compatible)
   imageUrl: {
     type: String,
     default: '/placeholder-equipment.jpg',
+    // ✅ Fix Windows backslash on save
+    set: (v) => v ? v.replace(/\\/g, '/') : '/placeholder-equipment.jpg',
   },
 
-  // Multiple images (new)
   images: [{
-    url: { type: String, required: true },
+    url: {
+      type: String,
+      required: false,    // ✅ CHANGED - no longer required
+      default: '',
+      // ✅ Fix Windows backslash
+      set: (v) => v ? v.replace(/\\/g, '/') : '',
+    },
     isPrimary: { type: Boolean, default: false },
   }],
 
   // ==================== PRICING ====================
-  // Backward compatible (keep rentalPrice as main)
   rentalPrice: {
     type: Number,
-    required: [true, 'Rental price is required'],
+    required: false,      // ✅ CHANGED - old data has string price
+    default: 0,
+    // ✅ Auto convert string "350" to number 350
+    set: (v) => {
+      const num = Number(String(v).replace(/[^0-9.]/g, ''));
+      return isNaN(num) ? 0 : num;
+    },
   },
 
-  // Extended pricing options
   pricing: {
-    perHour: { type: Number },
-    perDay: { type: Number },
-    perWeek: { type: Number },
-    perMonth: { type: Number },
+    perHour: { type: Number, default: 0 },
+    perDay: { type: Number, default: 0 },
+    perWeek: { type: Number, default: 0 },
+    perMonth: { type: Number, default: 0 },
     securityDeposit: { type: Number, default: 0 },
     negotiable: { type: Boolean, default: false },
   },
 
   // ==================== LOCATION ====================
-  // Simple location (backward compatible)
   location: {
     type: String,
-    required: [true, 'Location is required'],
+    required: false,      // ✅ CHANGED - old data has no location
+    default: '',
   },
 
-  // Detailed location (new)
   locationDetails: {
-    address: { type: String },
-    village: { type: String },
-    district: { type: String },
-    state: { type: String },
-    pincode: { type: String },
+    address: { type: String, default: '' },
+    village: { type: String, default: '' },
+    district: { type: String, default: '' },
+    state: { type: String, default: '' },
+    pincode: { type: String, default: '' },
     coordinates: {
       lat: { type: Number },
       lng: { type: Number },
@@ -108,8 +113,8 @@ const equipmentSchema = new mongoose.Schema({
 
   // ==================== CONTACT ====================
   contact: {
-    phone: { type: String },
-    alternatePhone: { type: String },
+    phone: { type: String, default: '' },
+    alternatePhone: { type: String, default: '' },
     whatsappAvailable: { type: Boolean, default: false },
   },
 
@@ -136,10 +141,11 @@ const equipmentSchema = new mongoose.Schema({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    default: null,
   },
 
-  ownerName: { type: String },
-  ownerPhone: { type: String },
+  ownerName: { type: String, default: '' },
+  ownerPhone: { type: String, default: '' },
 
   // ==================== RATINGS & STATS ====================
   ratings: {
@@ -157,22 +163,17 @@ const equipmentSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ['draft', 'active', 'inactive', 'rented', 'maintenance', 'deleted'],
-    default: 'active',
+    default: 'active',    // ✅ already has default - old data gets 'active'
   },
 
   isVerified: { type: Boolean, default: false },
   isFeatured: { type: Boolean, default: false },
+  termsAccepted: { type: Boolean, default: false },
 
-  // ==================== TIMESTAMPS ====================
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
+}, {
+  timestamps: true,
+  // ✅ IMPORTANT - allows old data fields that aren't in schema
+  strict: false,
 });
 
 // ==================== INDEXES ====================
@@ -196,12 +197,27 @@ equipmentSchema.virtual('primaryImage').get(function () {
 equipmentSchema.pre('save', function (next) {
   this.updatedAt = new Date();
 
-  // Sync rentalPrice with pricing.perDay
-  if (this.pricing && this.pricing.perDay) {
+  // ✅ Fix imageUrl backslash
+  if (this.imageUrl) {
+    this.imageUrl = this.imageUrl.replace(/\\/g, '/');
+  }
+
+  // ✅ Sync rentalPrice with pricing.perDay
+  if (this.pricing && this.pricing.perDay && !this.rentalPrice) {
     this.rentalPrice = this.pricing.perDay;
   }
 
-  // Set primary image
+  // ✅ Set status to active if not set (fixes old data)
+  if (!this.status) {
+    this.status = 'active';
+  }
+
+  // ✅ Set category to other if not set (fixes old data)
+  if (!this.category) {
+    this.category = 'other';
+  }
+
+  // ✅ Set primary image
   if (this.images && this.images.length > 0 && !this.images.some(img => img.isPrimary)) {
     this.images[0].isPrimary = true;
   }
