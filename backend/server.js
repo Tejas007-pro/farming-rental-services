@@ -32,7 +32,6 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
   'https://farming-rental-services-zg45.vercel.app',
-  'https://farming-rental-services-zg45-8ocjonqi3.vercel.app',
   process.env.CORS_ORIGIN,
 ].filter(Boolean);
 
