@@ -1,5 +1,5 @@
 // Home.jsx
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Box,
   Typography,
@@ -9,7 +9,6 @@ import {
   Container,
   Card,
   CardContent,
-  Avatar,
   Chip,
   Divider,
 } from "@mui/material";
@@ -19,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import Testimonials from "./Testimonials";
 import SpecialOffers from "./SpecialOffers";
 import Footer from "./Footer";
+import LanguageSwitcher from "./LanguageSwitcher"; // ✅ ADDED
 import {
   Agriculture,
   AttachMoney,
@@ -26,7 +26,6 @@ import {
   Star,
   People,
   Inventory,
-  TrendingUp,
   ArrowForward,
   LocalShipping,
   Support,
@@ -73,7 +72,8 @@ const features = [
     titleKey: "features.affordablePrices",
     titleDefault: "Affordable Prices",
     descKey: "features.affordableDesc",
-    descDefault: "Rent premium farming equipment at budget-friendly rates. No hidden charges, transparent pricing for every farmer.",
+    descDefault:
+      "Rent premium farming equipment at budget-friendly rates. No hidden charges, transparent pricing for every farmer.",
     color: "#2E7D32",
     bg: "#E8F5E9",
   },
@@ -82,7 +82,8 @@ const features = [
     titleKey: "features.wideVariety",
     titleDefault: "Wide Variety",
     descKey: "features.wideVarietyDesc",
-    descDefault: "Choose from tractors, plows, harvesters, sprayers, and 10+ categories of modern farming equipment.",
+    descDefault:
+      "Choose from tractors, plows, harvesters, sprayers, and 10+ categories of modern farming equipment.",
     color: "#1565C0",
     bg: "#E3F2FD",
   },
@@ -91,7 +92,8 @@ const features = [
     titleKey: "features.fastBooking",
     titleDefault: "Fast Booking",
     descKey: "features.fastBookingDesc",
-    descDefault: "Easy and quick rental process with instant confirmation. Book in minutes, not hours.",
+    descDefault:
+      "Easy and quick rental process with instant confirmation. Book in minutes, not hours.",
     color: "#D84315",
     bg: "#FBE9E7",
   },
@@ -100,7 +102,8 @@ const features = [
     titleKey: "features.deliveryAvailable",
     titleDefault: "Delivery Available",
     descKey: "features.deliveryDesc",
-    descDefault: "Equipment delivered right to your farm. Available in select locations across the region.",
+    descDefault:
+      "Equipment delivered right to your farm. Available in select locations across the region.",
     color: "#6A1B9A",
     bg: "#F3E5F5",
   },
@@ -109,7 +112,8 @@ const features = [
     titleKey: "features.support",
     titleDefault: "24/7 Support",
     descKey: "features.supportDesc",
-    descDefault: "Our team is available round the clock to help you with any queries or equipment issues.",
+    descDefault:
+      "Our team is available round the clock to help you with any queries or equipment issues.",
     color: "#00838F",
     bg: "#E0F7FA",
   },
@@ -118,7 +122,8 @@ const features = [
     titleKey: "features.verifiedOwners",
     titleDefault: "Verified Owners",
     descKey: "features.verifiedDesc",
-    descDefault: "All equipment owners are verified and trusted. Rent with complete confidence and safety.",
+    descDefault:
+      "All equipment owners are verified and trusted. Rent with complete confidence and safety.",
     color: "#F57F17",
     bg: "#FFFDE7",
   },
@@ -131,7 +136,8 @@ const steps = [
     titleKey: "steps.browse",
     titleDefault: "Browse Equipment",
     descKey: "steps.browseDesc",
-    descDefault: "Search and filter from hundreds of farming equipment listings near you.",
+    descDefault:
+      "Search and filter from hundreds of farming equipment listings near you.",
     color: "#2E7D32",
   },
   {
@@ -139,7 +145,8 @@ const steps = [
     titleKey: "steps.book",
     titleDefault: "Choose & Book",
     descKey: "steps.bookDesc",
-    descDefault: "Select your equipment, choose rental dates, and confirm your booking instantly.",
+    descDefault:
+      "Select your equipment, choose rental dates, and confirm your booking instantly.",
     color: "#1565C0",
   },
   {
@@ -155,7 +162,8 @@ const steps = [
     titleKey: "steps.farm",
     titleDefault: "Start Farming",
     descKey: "steps.farmDesc",
-    descDefault: "Receive equipment and start your work. Return when done. Simple!",
+    descDefault:
+      "Receive equipment and start your work. Return when done. Simple!",
     color: "#6A1B9A",
   },
 ];
@@ -172,7 +180,6 @@ const categories = [
 
 // ==================== MAIN COMPONENT ====================
 const Home = () => {
-  // ✅ Only use react-i18next - no translate.js needed
   const { t } = useTranslation();
 
   return (
@@ -203,6 +210,18 @@ const Home = () => {
               pointerEvents: "none",
             }}
           />
+
+          {/* ✅ LANGUAGE SWITCHER - Top Right of Hero */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: { xs: 16, md: 24 },
+              right: { xs: 16, md: 32 },
+              zIndex: 10,
+            }}
+          >
+            <LanguageSwitcher />
+          </Box>
 
           <Container maxWidth="xl">
             <Grid container spacing={6} alignItems="center">
@@ -239,7 +258,8 @@ const Home = () => {
                       fontSize: { xs: "2.2rem", md: "3.2rem" },
                     }}
                   >
-                    {t("hero.title") || "Rent Farm Equipment"}
+                    {/* ✅ FIXED - pass default as second argument */}
+                    {t("hero.title", "Rent Farm Equipment")}
                     <Box
                       component="span"
                       sx={{
@@ -250,7 +270,7 @@ const Home = () => {
                         WebkitTextFillColor: "transparent",
                       }}
                     >
-                      {t("hero.subtitle") || "Easily & Affordably"}
+                      {t("hero.subtitle", "Easily & Affordably")}
                     </Box>
                   </Typography>
 
@@ -265,8 +285,10 @@ const Home = () => {
                       maxWidth: 500,
                     }}
                   >
-                    {t("hero.description") ||
-                      "Connect with verified equipment owners near you. Book tractors, harvesters, sprayers and more at the best prices."}
+                    {t(
+                      "hero.description",
+                      "Connect with verified equipment owners near you. Book tractors, harvesters, sprayers and more at the best prices."
+                    )}
                   </Typography>
 
                   {/* CTA Buttons */}
@@ -295,7 +317,7 @@ const Home = () => {
                         transition: "all 0.3s ease",
                       }}
                     >
-                      {t("buttons.exploreEquipment") || "Explore Equipment"}
+                      {t("buttons.exploreEquipment", "Explore Equipment")}
                     </Button>
 
                     <Button
@@ -317,16 +339,16 @@ const Home = () => {
                         },
                       }}
                     >
-                      {t("buttons.listEquipment") || "List Equipment"}
+                      {t("buttons.listEquipment", "List Equipment")}
                     </Button>
                   </Box>
 
                   {/* Trust Badges */}
                   <Box sx={{ display: "flex", gap: 3, mt: 5, flexWrap: "wrap" }}>
                     {[
-                      t("trust.verified") || "✅ Verified Owners",
-                      t("trust.secure") || "✅ Secure Payments",
-                      t("trust.support") || "✅ Free Support",
+                      t("trust.verified", "✅ Verified Owners"),
+                      t("trust.secure", "✅ Secure Payments"),
+                      t("trust.support", "✅ Free Support"),
                     ].map((badge) => (
                       <Typography
                         key={badge}
@@ -393,8 +415,8 @@ const Home = () => {
                               variant="body2"
                               sx={{ color: "rgba(255,255,255,0.75)", mt: 0.5 }}
                             >
-                              {/* ✅ Use t() with fallback - no translate.js */}
-                              {t(stat.labelKey) || stat.labelDefault}
+                              {/* ✅ FIXED */}
+                              {t(stat.labelKey, stat.labelDefault)}
                             </Typography>
                           </Paper>
                         </motion.div>
@@ -418,14 +440,17 @@ const Home = () => {
           >
             <Box textAlign="center" mb={6}>
               <Chip
-                label={t("sections.browseCategory") || "Browse by Category"}
+                label={t("sections.browseCategory", "Browse by Category")}
                 sx={{ bgcolor: "#E8F5E9", color: "#2E7D32", fontWeight: 600, mb: 2 }}
               />
               <Typography variant="h4" fontWeight={700} color="#1E293B">
-                {t("sections.findByCategory") || "Find Equipment by Category"}
+                {t("sections.findByCategory", "Find Equipment by Category")}
               </Typography>
               <Typography variant="body1" color="text.secondary" mt={1}>
-                {t("sections.findByCategoryDesc") || "Browse through our wide collection of farming equipment"}
+                {t(
+                  "sections.findByCategoryDesc",
+                  "Browse through our wide collection of farming equipment"
+                )}
               </Typography>
             </Box>
 
@@ -461,11 +486,11 @@ const Home = () => {
                         {cat.icon}
                       </Typography>
                       <Typography variant="subtitle2" fontWeight={600} color="#1E293B">
-                        {/* ✅ Use t() with fallback - no translate.js */}
-                        {t(cat.nameKey) || cat.nameDefault}
+                        {/* ✅ FIXED */}
+                        {t(cat.nameKey, cat.nameDefault)}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {cat.count} {t("labels.available") || "available"}
+                        {cat.count} {t("labels.available", "available")}
                       </Typography>
                     </Paper>
                   </motion.div>
@@ -486,14 +511,17 @@ const Home = () => {
             >
               <Box textAlign="center" mb={6}>
                 <Chip
-                  label={t("sections.whyChooseUs") || "Why Choose Us"}
+                  label={t("sections.whyChooseUs", "Why Choose Us")}
                   sx={{ bgcolor: "#E8F5E9", color: "#2E7D32", fontWeight: 600, mb: 2 }}
                 />
                 <Typography variant="h4" fontWeight={700} color="#1E293B">
-                  {t("sections.whyFarmersLoveUs") || "Why Farmers Love Us"}
+                  {t("sections.whyFarmersLoveUs", "Why Farmers Love Us")}
                 </Typography>
                 <Typography variant="body1" color="text.secondary" mt={1}>
-                  {t("sections.whyDesc") || "We make farming equipment rental simple, safe and affordable"}
+                  {t(
+                    "sections.whyDesc",
+                    "We make farming equipment rental simple, safe and affordable"
+                  )}
                 </Typography>
               </Box>
 
@@ -536,11 +564,11 @@ const Home = () => {
                             {feature.icon}
                           </Box>
                           <Typography variant="h6" fontWeight={700} color="#1E293B" mb={1}>
-                            {/* ✅ Use t() with fallback - no translate.js */}
-                            {t(feature.titleKey) || feature.titleDefault}
+                            {/* ✅ FIXED */}
+                            {t(feature.titleKey, feature.titleDefault)}
                           </Typography>
                           <Typography variant="body2" color="text.secondary" lineHeight={1.7}>
-                            {t(feature.descKey) || feature.descDefault}
+                            {t(feature.descKey, feature.descDefault)}
                           </Typography>
                         </CardContent>
                       </Card>
@@ -562,14 +590,14 @@ const Home = () => {
           >
             <Box textAlign="center" mb={6}>
               <Chip
-                label={t("sections.simpleProcess") || "Simple Process"}
+                label={t("sections.simpleProcess", "Simple Process")}
                 sx={{ bgcolor: "#E3F2FD", color: "#1565C0", fontWeight: 600, mb: 2 }}
               />
               <Typography variant="h4" fontWeight={700} color="#1E293B">
-                {t("sections.howItWorks") || "How It Works"}
+                {t("sections.howItWorks", "How It Works")}
               </Typography>
               <Typography variant="body1" color="text.secondary" mt={1}>
-                {t("sections.howItWorksDesc") || "Get your equipment in 4 simple steps"}
+                {t("sections.howItWorksDesc", "Get your equipment in 4 simple steps")}
               </Typography>
             </Box>
 
@@ -622,7 +650,8 @@ const Home = () => {
                       </Box>
 
                       <Typography variant="h6" fontWeight={700} color="#1E293B" mb={1}>
-                        {t(step.titleKey) || step.titleDefault}
+                        {/* ✅ FIXED */}
+                        {t(step.titleKey, step.titleDefault)}
                       </Typography>
                       <Typography
                         variant="body2"
@@ -631,7 +660,7 @@ const Home = () => {
                         maxWidth={220}
                         mx="auto"
                       >
-                        {t(step.descKey) || step.descDefault}
+                        {t(step.descKey, step.descDefault)}
                       </Typography>
                     </Box>
                   </motion.div>
@@ -652,7 +681,8 @@ const Home = () => {
             >
               <Paper
                 sx={{
-                  background: "linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #00897B 100%)",
+                  background:
+                    "linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #00897B 100%)",
                   borderRadius: "24px",
                   p: { xs: 4, md: 6 },
                   textAlign: "center",
@@ -661,23 +691,27 @@ const Home = () => {
                 }}
               >
                 {/* Decorations */}
-                <Box sx={{
-                  position: "absolute", top: -40, right: -40,
-                  width: 200, height: 200, borderRadius: "50%",
-                  bgcolor: "rgba(255,255,255,0.05)",
-                }} />
-                <Box sx={{
-                  position: "absolute", bottom: -60, left: -20,
-                  width: 240, height: 240, borderRadius: "50%",
-                  bgcolor: "rgba(255,255,255,0.05)",
-                }} />
+                <Box
+                  sx={{
+                    position: "absolute", top: -40, right: -40,
+                    width: 200, height: 200, borderRadius: "50%",
+                    bgcolor: "rgba(255,255,255,0.05)",
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: "absolute", bottom: -60, left: -20,
+                    width: 240, height: 240, borderRadius: "50%",
+                    bgcolor: "rgba(255,255,255,0.05)",
+                  }}
+                />
 
                 <Typography
                   variant="h4"
                   fontWeight={800}
                   sx={{ color: "#fff", mb: 2, position: "relative" }}
                 >
-                  {t("cta.title") || "🚜 Have Equipment to Rent Out?"}
+                  {t("cta.title", "🚜 Have Equipment to Rent Out?")}
                 </Typography>
                 <Typography
                   variant="h6"
@@ -690,16 +724,20 @@ const Home = () => {
                     position: "relative",
                   }}
                 >
-                  {t("cta.description") ||
-                    "List your farming equipment and start earning money today! Join thousands of equipment owners."}
+                  {t(
+                    "cta.description",
+                    "List your farming equipment and start earning money today! Join thousands of equipment owners."
+                  )}
                 </Typography>
 
-                <Box sx={{
-                  display: "flex", gap: 2,
-                  justifyContent: "center",
-                  flexWrap: "wrap",
-                  position: "relative",
-                }}>
+                <Box
+                  sx={{
+                    display: "flex", gap: 2,
+                    justifyContent: "center",
+                    flexWrap: "wrap",
+                    position: "relative",
+                  }}
+                >
                   <Button
                     component={Link}
                     to="/add-equipment"
@@ -717,7 +755,7 @@ const Home = () => {
                       "&:hover": { bgcolor: "#F1F8E9" },
                     }}
                   >
-                    {t("buttons.listEquipment") || "List Your Equipment"}
+                    {t("buttons.listEquipment", "List Your Equipment")}
                   </Button>
                   <Button
                     component={Link}
@@ -737,7 +775,7 @@ const Home = () => {
                       },
                     }}
                   >
-                    {t("buttons.browseEquipment") || "Browse Equipment"}
+                    {t("buttons.browseEquipment", "Browse Equipment")}
                   </Button>
                 </Box>
               </Paper>
@@ -756,16 +794,18 @@ const Home = () => {
         {/* ==================== CONTACT STRIP ==================== */}
         <Box sx={{ bgcolor: "#1E293B", py: 3, px: 2 }}>
           <Container maxWidth="xl">
-            <Box sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 2,
-              flexWrap: "wrap",
-            }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 2,
+                flexWrap: "wrap",
+              }}
+            >
               <Phone sx={{ color: "#4CAF50", fontSize: 20 }} />
               <Typography variant="body1" sx={{ color: "#fff", fontWeight: 500 }}>
-                {t("contact.needHelp") || "Need Help? Call us:"}
+                {t("contact.needHelp", "Need Help? Call us:")}
               </Typography>
               <Typography variant="body1" sx={{ color: "#4CAF50", fontWeight: 700 }}>
                 +91 98765 43210
@@ -776,7 +816,7 @@ const Home = () => {
                 sx={{ bgcolor: "rgba(255,255,255,0.2)", mx: 1 }}
               />
               <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.6)" }}>
-                {t("contact.hours") || "Mon - Sat, 9 AM - 6 PM"}
+                {t("contact.hours", "Mon - Sat, 9 AM - 6 PM")}
               </Typography>
             </Box>
           </Container>
