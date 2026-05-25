@@ -2,9 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
-  Card,
-  CardMedia,
-  CardContent,
   Typography,
   Divider,
   Chip,
@@ -12,6 +9,14 @@ import {
   Alert,
   Button,
   Grid,
+  Paper,
+  Container,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  Breadcrumbs,
+  Rating,
 } from '@mui/material';
 import {
   LocationOn as LocationIcon,
@@ -19,6 +24,13 @@ import {
   Cancel as NotAvailableIcon,
   ArrowBack as BackIcon,
   CurrencyRupee as RupeeIcon,
+  LocalShipping as DeliveryIcon,
+  Security as SecurityIcon,
+  Support as SupportIcon,
+  Agriculture as AgricultureIcon,
+  Star as StarIcon,
+  Verified as VerifiedIcon,
+  NavigateNext as NavigateNextIcon,
 } from '@mui/icons-material';
 import axios from 'axios';
 import PaymentButton from './PaymentButton';
@@ -27,10 +39,7 @@ import API_BASE_URL from './config';
 // ==================== IMAGE URL HELPER ====================
 const getImageUrl = (imageUrl) => {
   if (!imageUrl) return '/placeholder-equipment.jpg';
-
-  // ✅ Fix Windows backslash
   const fixedUrl = imageUrl.replace(/\\/g, '/');
-
   if (fixedUrl.startsWith('http://') || fixedUrl.startsWith('https://')) {
     return fixedUrl;
   }
@@ -59,21 +68,96 @@ const conditionNames = {
 
 // ==================== LOADING SKELETON ====================
 const LoadingSkeleton = () => (
-  <Box p={4} display="flex" justifyContent="center">
-    <Card sx={{ maxWidth: 600, width: '100%', borderRadius: 2 }}>
-      <Skeleton variant="rectangular" height={300} />
-      <CardContent sx={{ p: 3 }}>
-        <Skeleton variant="text" width="60%" height={40} />
-        <Skeleton variant="text" width="100%" />
-        <Skeleton variant="text" width="80%" />
-        <Skeleton variant="text" width="40%" height={32} sx={{ mt: 2 }} />
-        <Divider sx={{ my: 2 }} />
-        <Skeleton variant="text" width="50%" />
-        <Skeleton variant="text" width="60%" />
-        <Skeleton variant="rounded" height={48} sx={{ mt: 3 }} />
-      </CardContent>
-    </Card>
+  <Box sx={{ bgcolor: '#F5F5F0', minHeight: '100vh', py: 3 }}>
+    <Container maxWidth="xl">
+      <Grid container spacing={3}>
+        {/* Left - Image */}
+        <Grid item xs={12} md={5}>
+          <Paper sx={{ p: 2, borderRadius: 3 }}>
+            <Skeleton variant="rectangular" height={400} sx={{ borderRadius: 2 }} />
+            <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} variant="rectangular" width={80} height={70} sx={{ borderRadius: 1 }} />
+              ))}
+            </Box>
+          </Paper>
+        </Grid>
+
+        {/* Right - Details */}
+        <Grid item xs={12} md={7}>
+          <Paper sx={{ p: 3, borderRadius: 3 }}>
+            <Skeleton variant="text" width="70%" height={50} />
+            <Skeleton variant="text" width="40%" height={30} sx={{ mt: 1 }} />
+            <Skeleton variant="text" width="30%" height={50} sx={{ mt: 2 }} />
+            <Divider sx={{ my: 2 }} />
+            <Skeleton variant="text" width="60%" />
+            <Skeleton variant="text" width="80%" />
+            <Skeleton variant="text" width="50%" />
+            <Skeleton variant="rounded" height={56} sx={{ mt: 3 }} />
+            <Skeleton variant="rounded" height={56} sx={{ mt: 2 }} />
+          </Paper>
+        </Grid>
+      </Grid>
+    </Container>
   </Box>
+);
+
+// ==================== TRUST BADGE ====================
+const TrustBadge = ({ icon, title, subtitle }) => (
+  <Box
+    sx={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 1.5,
+      p: 2,
+      borderRadius: 2,
+      bgcolor: '#F8FFF8',
+      border: '1px solid #E8F5E9',
+      flex: 1,
+    }}
+  >
+    <Box sx={{ color: '#2E7D32' }}>{icon}</Box>
+    <Box>
+      <Typography variant="body2" fontWeight={700} color="#1E293B">
+        {title}
+      </Typography>
+      <Typography variant="caption" color="text.secondary">
+        {subtitle}
+      </Typography>
+    </Box>
+  </Box>
+);
+
+// ==================== SPEC ROW ====================
+const SpecRow = ({ label, value }) => (
+  <TableRow
+    sx={{
+      '&:nth-of-type(odd)': { bgcolor: '#F8FAFC' },
+      '&:hover': { bgcolor: '#F1F8E9' },
+    }}
+  >
+    <TableCell
+      sx={{
+        fontWeight: 600,
+        color: '#64748B',
+        border: 'none',
+        py: 1.5,
+        width: '40%',
+      }}
+    >
+      {label}
+    </TableCell>
+    <TableCell
+      sx={{
+        color: '#1E293B',
+        fontWeight: 500,
+        border: 'none',
+        py: 1.5,
+      }}
+    >
+      {value}
+    </TableCell>
+  </TableRow>
 );
 
 // ==================== MAIN COMPONENT ====================
@@ -84,28 +168,20 @@ const EquipmentDetail = () => {
   const [equipment, setEquipment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [selectedImage, setSelectedImage] = useState(0);
 
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
         setLoading(true);
         setError('');
-
-        console.log('Fetching equipment ID:', id);
-
-        const response = await axios.get(
-          `${API_BASE_URL}/api/equipment/${id}`
-        );
-
+        const response = await axios.get(`${API_BASE_URL}/api/equipment/${id}`);
         if (response.data.success !== false) {
           setEquipment(response.data.equipment);
         } else {
           setError('Equipment not found.');
         }
-
       } catch (err) {
-        console.error('Error fetching equipment details:', err);
-
         if (err.response?.status === 404) {
           setError('Equipment not found.');
         } else {
@@ -119,30 +195,20 @@ const EquipmentDetail = () => {
       }
     };
 
-    if (id) {
-      fetchEquipment();
-    }
+    if (id) fetchEquipment();
   }, [id]);
 
-  // ✅ Loading state
-  if (loading) {
-    return <LoadingSkeleton />;
-  }
+  if (loading) return <LoadingSkeleton />;
 
-  // ✅ Error state
   if (error) {
     return (
-      <Box p={4} display="flex" justifyContent="center">
-        <Box maxWidth={600} width="100%">
+      <Box sx={{ bgcolor: '#F5F5F0', minHeight: '100vh', py: 4 }}>
+        <Container maxWidth="md">
           <Alert
             severity="error"
             sx={{ mb: 2, borderRadius: 2 }}
             action={
-              <Button
-                color="inherit"
-                size="small"
-                onClick={() => window.location.reload()}
-              >
+              <Button color="inherit" size="small" onClick={() => window.location.reload()}>
                 Retry
               </Button>
             }
@@ -157,48 +223,40 @@ const EquipmentDetail = () => {
           >
             Go Back
           </Button>
-        </Box>
+        </Container>
       </Box>
     );
   }
 
-  // ✅ No equipment found
   if (!equipment) {
     return (
-      <Box p={4} display="flex" justifyContent="center">
-        <Typography variant="body1" color="text.secondary">
-          Equipment not found.
-        </Typography>
+      <Box sx={{ bgcolor: '#F5F5F0', minHeight: '100vh', py: 4 }}>
+        <Container maxWidth="md">
+          <Typography variant="body1" color="text.secondary">
+            Equipment not found.
+          </Typography>
+        </Container>
       </Box>
     );
   }
 
-  // ✅ Safe price calculation - handles both string and number
+  // ==================== HELPERS ====================
   const getRentalPrice = () => {
-    if (!equipment.rentalPrice && equipment.rentalPrice !== 0) {
-      return 0;
-    }
-    return parseFloat(
-      String(equipment.rentalPrice).replace(/[^0-9.]/g, '')
-    ) || 0;
+    if (!equipment.rentalPrice && equipment.rentalPrice !== 0) return 0;
+    return parseFloat(String(equipment.rentalPrice).replace(/[^0-9.]/g, '')) || 0;
   };
 
-  // ✅ Get primary image - handles both old and new format
-  const primaryImage =
-    equipment.images?.[0]?.url ||
-    equipment.imageUrl ||
-    '/placeholder-equipment.jpg';
-
-  // ✅ Get location - handles both old and new format
   const getLocation = () => {
-    if (
-      equipment.locationDetails?.district &&
-      equipment.locationDetails?.state
-    ) {
+    if (equipment.locationDetails?.district && equipment.locationDetails?.state) {
       return `${equipment.locationDetails.district}, ${equipment.locationDetails.state}`;
     }
     return equipment.location || 'Location not specified';
   };
+
+  // Get all images
+  const allImages = equipment.images?.length > 0
+    ? equipment.images.map((img) => img.url || img)
+    : [equipment.imageUrl || '/placeholder-equipment.jpg'];
 
   const rentalPrice = getRentalPrice();
   const condition = equipment.condition || 'good';
@@ -206,212 +264,478 @@ const EquipmentDetail = () => {
   const conditionName = conditionNames[condition] || 'Good';
 
   return (
-    <Box
-      p={4}
-      display="flex"
-      justifyContent="center"
-      sx={{
-        background: 'linear-gradient(135deg, #f5f7fa, #c3cfe2)',
-        minHeight: '100vh',
-      }}
-    >
-      <Box maxWidth={600} width="100%">
+    <Box sx={{ bgcolor: '#F5F5F0', minHeight: '100vh', py: 3 }}>
+      <Container maxWidth="xl">
 
-        {/* Back Button */}
-        <Button
-          startIcon={<BackIcon />}
-          onClick={() => navigate(-1)}
-          sx={{
-            mb: 2,
-            textTransform: 'none',
-            color: '#2E7D32',
-            fontWeight: 600,
-          }}
+        {/* ==================== BREADCRUMB ==================== */}
+        <Breadcrumbs
+          separator={<NavigateNextIcon fontSize="small" />}
+          sx={{ mb: 2 }}
         >
-          Back to Listings
-        </Button>
+          <Typography
+            variant="body2"
+            sx={{ cursor: 'pointer', color: '#2E7D32', '&:hover': { textDecoration: 'underline' } }}
+            onClick={() => navigate('/')}
+          >
+            Home
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{ cursor: 'pointer', color: '#2E7D32', '&:hover': { textDecoration: 'underline' } }}
+            onClick={() => navigate('/equipment')}
+          >
+            Equipment
+          </Typography>
+          <Typography variant="body2" color="text.primary" fontWeight={600}>
+            {equipment.name}
+          </Typography>
+        </Breadcrumbs>
 
-        <Card sx={{ boxShadow: 3, borderRadius: 2 }}>
+        <Grid container spacing={3}>
 
-          {/* Equipment Image */}
-          <CardMedia
-            component="img"
-            height="300"
-            image={getImageUrl(primaryImage)}
-            alt={equipment.name}
-            sx={{ objectFit: 'cover' }}
-            onError={(e) => {
-              e.target.src = '/placeholder-equipment.jpg';
-            }}
-          />
+          {/* ==================== LEFT - IMAGE SECTION ==================== */}
+          <Grid item xs={12} md={5}>
 
-          <CardContent sx={{ p: 3 }}>
-
-            {/* Name and Condition */}
-            <Box sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              mb: 1,
-              flexWrap: 'wrap',
-              gap: 1,
-            }}>
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: 'bold', color: '#1E293B' }}
+            {/* Sticky image panel */}
+            <Box sx={{ position: { md: 'sticky' }, top: { md: 80 } }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  borderRadius: 3,
+                  border: '1px solid #E2E8F0',
+                  overflow: 'hidden',
+                  bgcolor: '#fff',
+                }}
               >
-                {equipment.name}
-              </Typography>
-
-              {/* ✅ Condition chip */}
-              {equipment.condition && (
-                <Chip
-                  label={conditionName}
-                  size="small"
+                {/* Main Image */}
+                <Box
                   sx={{
-                    bgcolor: `${conditionColor}20`,
-                    color: conditionColor,
-                    fontWeight: 600,
-                    border: `1px solid ${conditionColor}`,
+                    position: 'relative',
+                    bgcolor: '#FAFAFA',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: 380,
+                    overflow: 'hidden',
                   }}
+                >
+                  <img
+                    src={getImageUrl(allImages[selectedImage])}
+                    alt={equipment.name}
+                    onError={(e) => { e.target.src = '/placeholder-equipment.jpg'; }}
+                    style={{
+                      maxHeight: '100%',
+                      maxWidth: '100%',
+                      objectFit: 'contain',
+                      transition: 'all 0.3s ease',
+                    }}
+                  />
+
+                  {/* Availability Badge on Image */}
+                  <Chip
+                    icon={equipment.available ? <AvailableIcon /> : <NotAvailableIcon />}
+                    label={equipment.available ? 'Available' : 'Not Available'}
+                    sx={{
+                      position: 'absolute',
+                      top: 12,
+                      left: 12,
+                      bgcolor: equipment.available ? '#DCFCE7' : '#FEE2E2',
+                      color: equipment.available ? '#15803D' : '#DC2626',
+                      fontWeight: 700,
+                      border: `1px solid ${equipment.available ? '#BBF7D0' : '#FECACA'}`,
+                    }}
+                  />
+
+                  {/* Condition Badge */}
+                  <Chip
+                    label={conditionName}
+                    sx={{
+                      position: 'absolute',
+                      top: 12,
+                      right: 12,
+                      bgcolor: `${conditionColor}20`,
+                      color: conditionColor,
+                      fontWeight: 700,
+                      border: `1px solid ${conditionColor}40`,
+                    }}
+                  />
+                </Box>
+
+                {/* Thumbnail Images */}
+                {allImages.length > 1 && (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: 1,
+                      p: 2,
+                      overflowX: 'auto',
+                      borderTop: '1px solid #F1F5F9',
+                    }}
+                  >
+                    {allImages.map((img, index) => (
+                      <Box
+                        key={index}
+                        onClick={() => setSelectedImage(index)}
+                        sx={{
+                          width: 72,
+                          height: 72,
+                          borderRadius: 2,
+                          overflow: 'hidden',
+                          cursor: 'pointer',
+                          border: selectedImage === index
+                            ? '2px solid #2E7D32'
+                            : '2px solid #E2E8F0',
+                          flexShrink: 0,
+                          transition: 'all 0.2s ease',
+                          '&:hover': { borderColor: '#2E7D32' },
+                        }}
+                      >
+                        <img
+                          src={getImageUrl(img)}
+                          alt={`view-${index}`}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          onError={(e) => { e.target.src = '/placeholder-equipment.jpg'; }}
+                        />
+                      </Box>
+                    ))}
+                  </Box>
+                )}
+              </Paper>
+
+              {/* Trust Badges below image */}
+              <Box sx={{ display: 'flex', gap: 1.5, mt: 2, flexWrap: 'wrap' }}>
+                <TrustBadge
+                  icon={<SecurityIcon />}
+                  title="Safe Rental"
+                  subtitle="Verified listing"
                 />
-              )}
+                <TrustBadge
+                  icon={<SupportIcon />}
+                  title="24/7 Support"
+                  subtitle="Always here"
+                />
+              </Box>
             </Box>
+          </Grid>
 
-            {/* Description */}
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              sx={{ mb: 2, lineHeight: 1.6 }}
-            >
-              {equipment.description || 'No description available'}
-            </Typography>
+          {/* ==================== RIGHT - DETAILS SECTION ==================== */}
+          <Grid item xs={12} md={7}>
+            <Grid container spacing={2.5}>
 
-            {/* Price */}
-            <Box sx={{
-              display: 'flex',
-              alignItems: 'baseline',
-              gap: 0.5,
-              mb: 2,
-            }}>
-              <RupeeIcon sx={{ color: '#2E7D32', fontSize: 28 }} />
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: 700, color: '#2E7D32' }}
-              >
-                {rentalPrice.toLocaleString('en-IN')}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                / day
-              </Typography>
-            </Box>
-
-            <Divider sx={{ my: 2 }} />
-
-            {/* Details Grid */}
-            <Grid container spacing={2} sx={{ mb: 2 }}>
-
-              {/* Availability */}
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  {/* ✅ Fixed: using 'available' not 'availability' */}
-                  {equipment.available ? (
-                    <AvailableIcon sx={{ color: '#10B981', fontSize: 20 }} />
-                  ) : (
-                    <NotAvailableIcon sx={{ color: '#EF4444', fontSize: 20 }} />
+              {/* ==================== MAIN INFO CARD ==================== */}
+              <Grid item xs={12}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: 3,
+                    border: '1px solid #E2E8F0',
+                    bgcolor: '#fff',
+                  }}
+                >
+                  {/* Category Chip */}
+                  {equipment.category && (
+                    <Chip
+                      icon={<AgricultureIcon sx={{ fontSize: '16px !important' }} />}
+                      label={equipment.category.charAt(0).toUpperCase() + equipment.category.slice(1)}
+                      size="small"
+                      sx={{
+                        bgcolor: '#E8F5E9',
+                        color: '#2E7D32',
+                        fontWeight: 600,
+                        mb: 1.5,
+                      }}
+                    />
                   )}
-                  <Typography variant="body1">
-                    <strong>Status: </strong>
-                    <span style={{
-                      color: equipment.available ? '#10B981' : '#EF4444',
-                      fontWeight: 600,
-                    }}>
-                      {equipment.available ? 'Available' : 'Not Available'}
-                    </span>
-                  </Typography>
-                </Box>
-              </Grid>
 
-              {/* Location */}
-              <Grid item xs={12} sm={6}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <LocationIcon sx={{ color: '#64748B', fontSize: 20 }} />
-                  <Typography variant="body1">
-                    <strong>Location: </strong>
-                    {getLocation()}
+                  {/* Equipment Name */}
+                  <Typography
+                    variant="h4"
+                    fontWeight={800}
+                    color="#1E293B"
+                    sx={{ lineHeight: 1.3, mb: 1 }}
+                  >
+                    {equipment.name}
                   </Typography>
-                </Box>
-              </Grid>
 
-              {/* Brand - if exists */}
-              {equipment.specifications?.brand && (
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body1">
-                    <strong>Brand: </strong>
-                    {equipment.specifications.brand}
-                  </Typography>
-                </Grid>
-              )}
+                  {/* Rating Row */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    <Rating value={4.5} precision={0.5} readOnly size="small" />
+                    <Typography variant="body2" color="#2E7D32" fontWeight={600}>
+                      4.5
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      (128 ratings)
+                    </Typography>
+                    <Chip
+                      icon={<VerifiedIcon sx={{ fontSize: '14px !important' }} />}
+                      label="Verified"
+                      size="small"
+                      sx={{
+                        bgcolor: '#EFF6FF',
+                        color: '#1D4ED8',
+                        fontWeight: 600,
+                        height: 22,
+                      }}
+                    />
+                  </Box>
 
-              {/* Horsepower - if exists */}
-              {equipment.specifications?.horsePower && (
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body1">
-                    <strong>Horse Power: </strong>
-                    {equipment.specifications.horsePower} HP
-                  </Typography>
-                </Grid>
-              )}
+                  <Divider sx={{ my: 2 }} />
 
-              {/* Category - if exists */}
-              {equipment.category && (
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body1">
-                    <strong>Category: </strong>
-                    {equipment.category.charAt(0).toUpperCase() +
-                      equipment.category.slice(1)}
-                  </Typography>
-                </Grid>
-              )}
+                  {/* Price Section */}
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" color="text.secondary" mb={0.5}>
+                      Rental Price
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.5 }}>
+                      <Typography
+                        variant="h3"
+                        fontWeight={800}
+                        sx={{ color: '#2E7D32' }}
+                      >
+                        ₹{rentalPrice.toLocaleString('en-IN')}
+                      </Typography>
+                      <Typography variant="h6" color="text.secondary" fontWeight={400}>
+                        / day
+                      </Typography>
+                    </Box>
 
-              {/* Delivery - if exists */}
-              {equipment.delivery?.available && (
-                <Grid item xs={12} sm={6}>
-                  <Typography variant="body1">
-                    <strong>Delivery: </strong>
-                    <span style={{ color: '#10B981' }}>Available</span>
-                    {equipment.delivery.charges > 0 && (
-                      <span> (₹{equipment.delivery.charges})</span>
+                    {/* Delivery Info */}
+                    {equipment.delivery?.available && (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 1 }}>
+                        <DeliveryIcon sx={{ fontSize: 16, color: '#2E7D32' }} />
+                        <Typography variant="body2" color="#2E7D32" fontWeight={600}>
+                          {equipment.delivery.charges > 0
+                            ? `Delivery available at ₹${equipment.delivery.charges}`
+                            : 'Free Delivery Available'}
+                        </Typography>
+                      </Box>
                     )}
+                  </Box>
+
+                  <Divider sx={{ my: 2 }} />
+
+                  {/* Location */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                    <LocationIcon sx={{ color: '#64748B', fontSize: 20 }} />
+                    <Typography variant="body1" color="#1E293B">
+                      <strong>Location:</strong>{' '}
+                      <span style={{ color: '#64748B' }}>{getLocation()}</span>
+                    </Typography>
+                  </Box>
+
+                  {/* Description */}
+                  <Box
+                    sx={{
+                      bgcolor: '#F8FAFC',
+                      borderRadius: 2,
+                      p: 2,
+                      mb: 2,
+                      border: '1px solid #E2E8F0',
+                    }}
+                  >
+                    <Typography variant="body2" fontWeight={700} color="#1E293B" mb={0.5}>
+                      About this Equipment
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" lineHeight={1.8}>
+                      {equipment.description || 'No description available.'}
+                    </Typography>
+                  </Box>
+
+                  {/* Book & Pay */}
+                  <Box
+                    sx={{
+                      bgcolor: '#F0FDF4',
+                      borderRadius: 2,
+                      p: 2.5,
+                      border: '1px solid #BBF7D0',
+                    }}
+                  >
+                    <Typography variant="h6" fontWeight={700} color="#1E293B" mb={2}>
+                      🚜 Book This Equipment
+                    </Typography>
+
+                    {equipment.available ? (
+                      <Box>
+                        <PaymentButton amount={rentalPrice} />
+                        <Button
+                          fullWidth
+                          variant="outlined"
+                          onClick={() => navigate('/equipment')}
+                          sx={{
+                            mt: 1.5,
+                            borderRadius: 2,
+                            py: 1.5,
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            borderColor: '#2E7D32',
+                            color: '#2E7D32',
+                            '&:hover': {
+                              bgcolor: '#F0FDF4',
+                              borderColor: '#1B5E20',
+                            },
+                          }}
+                        >
+                          Browse More Equipment
+                        </Button>
+                      </Box>
+                    ) : (
+                      <Alert severity="warning" sx={{ borderRadius: 2 }}>
+                        This equipment is currently not available for rent.
+                        <Button
+                          size="small"
+                          sx={{ mt: 1, display: 'block', textTransform: 'none' }}
+                          onClick={() => navigate('/equipment')}
+                        >
+                          Browse Similar Equipment →
+                        </Button>
+                      </Alert>
+                    )}
+                  </Box>
+                </Paper>
+              </Grid>
+
+              {/* ==================== SPECIFICATIONS CARD ==================== */}
+              <Grid item xs={12}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: 3,
+                    border: '1px solid #E2E8F0',
+                    bgcolor: '#fff',
+                  }}
+                >
+                  <Typography variant="h6" fontWeight={700} color="#1E293B" mb={2}>
+                    📋 Specifications
                   </Typography>
-                </Grid>
-              )}
+
+                  <Table size="small">
+                    <TableBody>
+                      <SpecRow label="Category" value={
+                        equipment.category
+                          ? equipment.category.charAt(0).toUpperCase() + equipment.category.slice(1)
+                          : 'N/A'
+                      } />
+                      <SpecRow label="Condition" value={
+                        <Chip
+                          label={conditionName}
+                          size="small"
+                          sx={{
+                            bgcolor: `${conditionColor}20`,
+                            color: conditionColor,
+                            fontWeight: 600,
+                            border: `1px solid ${conditionColor}40`,
+                          }}
+                        />
+                      } />
+                      <SpecRow label="Availability" value={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          {equipment.available
+                            ? <><AvailableIcon sx={{ color: '#10B981', fontSize: 16 }} /><span style={{ color: '#10B981', fontWeight: 600 }}>Available Now</span></>
+                            : <><NotAvailableIcon sx={{ color: '#EF4444', fontSize: 16 }} /><span style={{ color: '#EF4444', fontWeight: 600 }}>Not Available</span></>
+                          }
+                        </Box>
+                      } />
+                      <SpecRow label="Location" value={getLocation()} />
+                      {equipment.specifications?.brand && (
+                        <SpecRow label="Brand" value={equipment.specifications.brand} />
+                      )}
+                      {equipment.specifications?.horsePower && (
+                        <SpecRow label="Horse Power" value={`${equipment.specifications.horsePower} HP`} />
+                      )}
+                      {equipment.specifications?.year && (
+                        <SpecRow label="Year" value={equipment.specifications.year} />
+                      )}
+                      {equipment.specifications?.fuelType && (
+                        <SpecRow label="Fuel Type" value={equipment.specifications.fuelType} />
+                      )}
+                      {equipment.delivery?.available && (
+                        <SpecRow label="Delivery" value={
+                          equipment.delivery.charges > 0
+                            ? `Available (₹${equipment.delivery.charges})`
+                            : 'Free Delivery'
+                        } />
+                      )}
+                      <SpecRow
+                        label="Rental Price"
+                        value={`₹${rentalPrice.toLocaleString('en-IN')} per day`}
+                      />
+                    </TableBody>
+                  </Table>
+                </Paper>
+              </Grid>
+
+              {/* ==================== POLICIES CARD ==================== */}
+              <Grid item xs={12}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 3,
+                    borderRadius: 3,
+                    border: '1px solid #E2E8F0',
+                    bgcolor: '#fff',
+                  }}
+                >
+                  <Typography variant="h6" fontWeight={700} color="#1E293B" mb={2}>
+                    🛡️ Rental Policies
+                  </Typography>
+
+                  <Grid container spacing={2}>
+                    {[
+                      { icon: '✅', title: 'Verified Equipment', desc: 'All equipment is verified before listing' },
+                      { icon: '🔄', title: 'Easy Returns', desc: 'Return equipment hassle-free after use' },
+                      { icon: '💰', title: 'Transparent Pricing', desc: 'No hidden charges, pay only what you see' },
+                      { icon: '📞', title: '24/7 Support', desc: 'Our team is always available to help you' },
+                    ].map((policy, index) => (
+                      <Grid item xs={12} sm={6} key={index}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: 1.5,
+                            p: 1.5,
+                            borderRadius: 2,
+                            bgcolor: '#F8FAFC',
+                            border: '1px solid #E2E8F0',
+                          }}
+                        >
+                          <Typography fontSize={20}>{policy.icon}</Typography>
+                          <Box>
+                            <Typography variant="body2" fontWeight={700} color="#1E293B">
+                              {policy.title}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {policy.desc}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Paper>
+              </Grid>
 
             </Grid>
+          </Grid>
+        </Grid>
 
-            <Divider sx={{ my: 2 }} />
+        {/* ==================== BACK BUTTON ==================== */}
+        <Box sx={{ mt: 4, mb: 2 }}>
+          <Button
+            startIcon={<BackIcon />}
+            onClick={() => navigate(-1)}
+            sx={{
+              textTransform: 'none',
+              color: '#2E7D32',
+              fontWeight: 600,
+              '&:hover': { bgcolor: '#F0FDF4' },
+            }}
+          >
+            Back to Listings
+          </Button>
+        </Box>
 
-            {/* Payment Section */}
-            <Box sx={{ mt: 3 }}>
-              <Typography
-                variant="h6"
-                sx={{ mb: 2, fontWeight: 600, color: '#1E293B' }}
-              >
-                Book & Pay
-              </Typography>
-
-              {equipment.available ? (
-                <PaymentButton amount={rentalPrice} />
-              ) : (
-                <Alert severity="warning" sx={{ borderRadius: 2 }}>
-                  This equipment is currently not available for rent.
-                </Alert>
-              )}
-            </Box>
-
-          </CardContent>
-        </Card>
-      </Box>
+      </Container>
     </Box>
   );
 };
