@@ -1,6 +1,5 @@
 // Dashboard.jsx
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import {
   Box,
   Container,
@@ -15,14 +14,10 @@ import {
   TableRow,
   Chip,
   Avatar,
-  LinearProgress,
   IconButton,
   Tooltip,
-  Card,
-  CardContent,
   Skeleton,
   Alert,
-  useTheme,
   useMediaQuery,
 } from '@mui/material';
 import {
@@ -42,6 +37,7 @@ import {
   LocalShipping as DeliveryIcon,
   Person as PersonIcon,
   Visibility as ViewIcon,
+  InboxOutlined as EmptyIcon,
 } from '@mui/icons-material';
 import {
   PieChart,
@@ -62,7 +58,8 @@ import {
 } from 'recharts';
 
 // ==================== THEME COLORS ====================
-const theme = {
+// ✅ FIX 3: Renamed to dashTheme to avoid clash with MUI useTheme
+const dashTheme = {
   primary: {
     main: '#2E7D32',
     light: '#4CAF50',
@@ -88,36 +85,37 @@ const theme = {
     secondary: '#636E72',
     light: '#B2BEC3',
   },
-  earthy: {
-    olive: '#808000',
-    brown: '#8B4513',
-    sand: '#F4A460',
-    beige: '#F5F5DC',
-  },
 };
 
-// ==================== REUSABLE COMPONENTS ====================
+// ==================== TABLE HEADER STYLE ====================
+// ✅ FIX 4: Reusable style object instead of repeating 6 times
+const tableHeadCellSx = {
+  fontWeight: 600,
+  color: dashTheme.text.primary,
+  borderBottom: `2px solid ${dashTheme.primary.light}`,
+  bgcolor: '#F8FFF8',
+};
 
-// Stat Card Component
-const StatCard = ({ 
-  title, 
-  value, 
-  icon: Icon, 
-  trend, 
-  trendValue, 
-  color = theme.primary.main,
+// ==================== STAT CARD ====================
+const StatCard = ({
+  title,
+  value,
+  icon: Icon,
+  trend,
+  trendValue,
+  color = dashTheme.primary.main,
   gradient,
-  subtitle 
+  subtitle,
 }) => {
   const isPositive = trend === 'up';
-  
+
   return (
     <Paper
       elevation={0}
       sx={{
         p: 2.5,
         borderRadius: '16px',
-        background: gradient || theme.background.paper,
+        background: gradient || dashTheme.background.paper,
         border: '1px solid rgba(0,0,0,0.05)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         cursor: 'pointer',
@@ -128,16 +126,6 @@ const StatCard = ({
           transform: 'translateY(-4px)',
           boxShadow: '0 12px 24px rgba(46, 125, 50, 0.15)',
         },
-        '&::before': gradient ? {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(255,255,255,0.1)',
-          borderRadius: '16px',
-        } : {},
       }}
     >
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -145,7 +133,7 @@ const StatCard = ({
           <Typography
             variant="body2"
             sx={{
-              color: gradient ? 'rgba(255,255,255,0.85)' : theme.text.secondary,
+              color: gradient ? 'rgba(255,255,255,0.85)' : dashTheme.text.secondary,
               fontWeight: 500,
               mb: 0.5,
               fontSize: '0.85rem',
@@ -157,7 +145,7 @@ const StatCard = ({
             variant="h4"
             sx={{
               fontWeight: 700,
-              color: gradient ? '#fff' : theme.text.primary,
+              color: gradient ? '#fff' : dashTheme.text.primary,
               mb: 1,
               fontSize: { xs: '1.75rem', md: '2rem' },
             }}
@@ -169,16 +157,20 @@ const StatCard = ({
               {trend && (
                 <>
                   {isPositive ? (
-                    <TrendingUpIcon sx={{ fontSize: 16, color: gradient ? '#A5D6A7' : theme.success }} />
+                    <TrendingUpIcon
+                      sx={{ fontSize: 16, color: gradient ? '#A5D6A7' : dashTheme.success }}
+                    />
                   ) : (
-                    <TrendingDownIcon sx={{ fontSize: 16, color: gradient ? '#FFCDD2' : theme.error }} />
+                    <TrendingDownIcon
+                      sx={{ fontSize: 16, color: gradient ? '#FFCDD2' : dashTheme.error }}
+                    />
                   )}
                   <Typography
                     variant="caption"
                     sx={{
-                      color: gradient 
-                        ? (isPositive ? '#A5D6A7' : '#FFCDD2')
-                        : (isPositive ? theme.success : theme.error),
+                      color: gradient
+                        ? isPositive ? '#A5D6A7' : '#FFCDD2'
+                        : isPositive ? dashTheme.success : dashTheme.error,
                       fontWeight: 600,
                     }}
                   >
@@ -189,7 +181,9 @@ const StatCard = ({
               {subtitle && (
                 <Typography
                   variant="caption"
-                  sx={{ color: gradient ? 'rgba(255,255,255,0.7)' : theme.text.secondary }}
+                  sx={{
+                    color: gradient ? 'rgba(255,255,255,0.7)' : dashTheme.text.secondary,
+                  }}
                 >
                   {subtitle}
                 </Typography>
@@ -212,7 +206,8 @@ const StatCard = ({
   );
 };
 
-// Circular Progress Card Component
+// ==================== CIRCULAR PROGRESS CARD ====================
+// ✅ FIX 7: Now actually uses icon prop
 const CircularProgressCard = ({ title, value, color, icon: Icon, size = 120 }) => {
   const circumference = 2 * Math.PI * 45;
   const strokeDashoffset = circumference - (value / 100) * circumference;
@@ -223,7 +218,7 @@ const CircularProgressCard = ({ title, value, color, icon: Icon, size = 120 }) =
       sx={{
         p: 3,
         borderRadius: '16px',
-        background: theme.background.paper,
+        background: dashTheme.background.paper,
         border: '1px solid rgba(0,0,0,0.05)',
         textAlign: 'center',
         transition: 'all 0.3s ease',
@@ -235,20 +230,9 @@ const CircularProgressCard = ({ title, value, color, icon: Icon, size = 120 }) =
     >
       <Box sx={{ position: 'relative', display: 'inline-flex', mb: 2 }}>
         <svg width={size} height={size} viewBox="0 0 100 100">
-          {/* Background circle */}
+          <circle cx="50" cy="50" r="45" fill="none" stroke="#E8F5E9" strokeWidth="8" />
           <circle
-            cx="50"
-            cy="50"
-            r="45"
-            fill="none"
-            stroke="#E8F5E9"
-            strokeWidth="8"
-          />
-          {/* Progress circle */}
-          <circle
-            cx="50"
-            cy="50"
-            r="45"
+            cx="50" cy="50" r="45"
             fill="none"
             stroke={`url(#gradient-${title.replace(/\s/g, '')})`}
             strokeWidth="8"
@@ -259,54 +243,71 @@ const CircularProgressCard = ({ title, value, color, icon: Icon, size = 120 }) =
             style={{ transition: 'stroke-dashoffset 1s ease-in-out' }}
           />
           <defs>
-            <linearGradient id={`gradient-${title.replace(/\s/g, '')}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={theme.primary.main} />
+            <linearGradient
+              id={`gradient-${title.replace(/\s/g, '')}`}
+              x1="0%" y1="0%" x2="100%" y2="100%"
+            >
+              <stop offset="0%" stopColor={dashTheme.primary.main} />
               <stop offset="100%" stopColor="#00897B" />
             </linearGradient>
           </defs>
         </svg>
+
+        {/* ✅ FIX 7: Icon now shown in center of circle */}
         <Box
           sx={{
             position: 'absolute',
-            top: '50%',
-            left: '50%',
+            top: '50%', left: '50%',
             transform: 'translate(-50%, -50%)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            gap: 0.3,
           }}
         >
-          <Typography variant="h5" sx={{ fontWeight: 700, color: theme.text.primary }}>
+          {Icon && (
+            <Icon sx={{ fontSize: 18, color: dashTheme.primary.main, mb: 0.2 }} />
+          )}
+          <Typography variant="h6" sx={{ fontWeight: 700, color: dashTheme.text.primary, lineHeight: 1 }}>
             {value}%
           </Typography>
         </Box>
       </Box>
-      <Typography variant="body2" sx={{ color: theme.text.secondary, fontWeight: 500 }}>
+      <Typography variant="body2" sx={{ color: dashTheme.text.secondary, fontWeight: 500 }}>
         {title}
       </Typography>
     </Paper>
   );
 };
 
-// Chart Card Wrapper Component
+// ==================== CHART CARD WRAPPER ====================
 const ChartCard = ({ title, subtitle, children, action }) => (
   <Paper
     elevation={0}
     sx={{
       p: 3,
       borderRadius: '16px',
-      background: theme.background.paper,
+      background: dashTheme.background.paper,
       border: '1px solid rgba(0,0,0,0.05)',
       height: '100%',
     }}
   >
-    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        mb: 3,
+        flexWrap: 'wrap',
+        gap: 1,
+      }}
+    >
       <Box>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: theme.text.primary }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: dashTheme.text.primary }}>
           {title}
         </Typography>
         {subtitle && (
-          <Typography variant="body2" sx={{ color: theme.text.secondary }}>
+          <Typography variant="body2" sx={{ color: dashTheme.text.secondary }}>
             {subtitle}
           </Typography>
         )}
@@ -317,19 +318,17 @@ const ChartCard = ({ title, subtitle, children, action }) => (
   </Paper>
 );
 
-// Metric Card (Smaller operational insights)
+// ==================== METRIC CARD ====================
 const MetricCard = ({ title, value, icon: Icon, description, color }) => (
   <Paper
     elevation={0}
     sx={{
       p: 2,
       borderRadius: '12px',
-      background: theme.background.paper,
+      background: dashTheme.background.paper,
       border: '1px solid rgba(0,0,0,0.05)',
       transition: 'all 0.3s ease',
-      '&:hover': {
-        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-      },
+      '&:hover': { boxShadow: '0 4px 12px rgba(0,0,0,0.08)' },
     }}
   >
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -337,14 +336,14 @@ const MetricCard = ({ title, value, icon: Icon, description, color }) => (
         <Icon sx={{ color, fontSize: 22 }} />
       </Avatar>
       <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography variant="body2" sx={{ color: theme.text.secondary, fontSize: '0.8rem' }}>
+        <Typography variant="body2" sx={{ color: dashTheme.text.secondary, fontSize: '0.8rem' }}>
           {title}
         </Typography>
-        <Typography variant="h6" sx={{ fontWeight: 600, color: theme.text.primary }}>
+        <Typography variant="h6" sx={{ fontWeight: 600, color: dashTheme.text.primary }}>
           {value}
         </Typography>
         {description && (
-          <Typography variant="caption" sx={{ color: theme.text.light }}>
+          <Typography variant="caption" sx={{ color: dashTheme.text.light }}>
             {description}
           </Typography>
         )}
@@ -353,22 +352,16 @@ const MetricCard = ({ title, value, icon: Icon, description, color }) => (
   </Paper>
 );
 
-// Status Badge Component
+// ==================== STATUS BADGE ====================
 const StatusBadge = ({ status }) => {
   const getStatusConfig = (status) => {
     switch (status?.toLowerCase()) {
-      case 'active':
-        return { color: '#4CAF50', bg: '#E8F5E9', label: 'Active' };
-      case 'completed':
-        return { color: '#2196F3', bg: '#E3F2FD', label: 'Completed' };
-      case 'pending':
-        return { color: '#FF9800', bg: '#FFF3E0', label: 'Pending' };
-      case 'cancelled':
-        return { color: '#F44336', bg: '#FFEBEE', label: 'Cancelled' };
-      case 'maintenance':
-        return { color: '#9C27B0', bg: '#F3E5F5', label: 'Maintenance' };
-      default:
-        return { color: '#9E9E9E', bg: '#F5F5F5', label: status };
+      case 'active':     return { color: '#4CAF50', bg: '#E8F5E9', label: 'Active' };
+      case 'completed':  return { color: '#2196F3', bg: '#E3F2FD', label: 'Completed' };
+      case 'pending':    return { color: '#FF9800', bg: '#FFF3E0', label: 'Pending' };
+      case 'cancelled':  return { color: '#F44336', bg: '#FFEBEE', label: 'Cancelled' };
+      case 'maintenance':return { color: '#9C27B0', bg: '#F3E5F5', label: 'Maintenance' };
+      default:           return { color: '#9E9E9E', bg: '#F5F5F5', label: status };
     }
   };
 
@@ -407,69 +400,50 @@ const mockAnalyticsData = [
 ];
 
 const mockRecentRentals = [
-  {
-    id: 1,
-    equipment: 'John Deere Tractor 5050D',
-    renter: 'Rajesh Kumar',
-    startDate: '2024-01-15',
-    endDate: '2024-01-20',
-    status: 'Active',
-    amount: 15000,
-    image: '🚜',
-  },
-  {
-    id: 2,
-    equipment: 'Mahindra Rotavator',
-    renter: 'Suresh Patel',
-    startDate: '2024-01-10',
-    endDate: '2024-01-14',
-    status: 'Completed',
-    amount: 8000,
-    image: '⚙️',
-  },
-  {
-    id: 3,
-    equipment: 'Power Tiller Honda',
-    renter: 'Amit Singh',
-    startDate: '2024-01-18',
-    endDate: '2024-01-25',
-    status: 'Pending',
-    amount: 12000,
-    image: '🔧',
-  },
-  {
-    id: 4,
-    equipment: 'Seed Drill Machine',
-    renter: 'Vikram Yadav',
-    startDate: '2024-01-12',
-    endDate: '2024-01-16',
-    status: 'Completed',
-    amount: 6500,
-    image: '🌾',
-  },
-  {
-    id: 5,
-    equipment: 'Spray Pump Electric',
-    renter: 'Mohan Das',
-    startDate: '2024-01-20',
-    endDate: '2024-01-22',
-    status: 'Active',
-    amount: 3000,
-    image: '💨',
-  },
+  { id: 1, equipment: 'John Deere Tractor 5050D', renter: 'Rajesh Kumar', startDate: '2024-01-15', endDate: '2024-01-20', status: 'Active',    amount: 15000, image: '🚜' },
+  { id: 2, equipment: 'Mahindra Rotavator',       renter: 'Suresh Patel',  startDate: '2024-01-10', endDate: '2024-01-14', status: 'Completed', amount: 8000,  image: '⚙️' },
+  { id: 3, equipment: 'Power Tiller Honda',        renter: 'Amit Singh',    startDate: '2024-01-18', endDate: '2024-01-25', status: 'Pending',   amount: 12000, image: '🔧' },
+  { id: 4, equipment: 'Seed Drill Machine',        renter: 'Vikram Yadav',  startDate: '2024-01-12', endDate: '2024-01-16', status: 'Completed', amount: 6500,  image: '🌾' },
+  { id: 5, equipment: 'Spray Pump Electric',       renter: 'Mohan Das',     startDate: '2024-01-20', endDate: '2024-01-22', status: 'Active',    amount: 3000,  image: '💨' },
 ];
 
 const equipmentUtilization = [
-  { name: 'In Use', value: 68, color: '#4CAF50' },
-  { name: 'Available', value: 22, color: '#81C784' },
+  { name: 'In Use',      value: 68, color: '#4CAF50' },
+  { name: 'Available',   value: 22, color: '#81C784' },
   { name: 'Maintenance', value: 10, color: '#FF9800' },
 ];
 
-// ==================== MAIN DASHBOARD COMPONENT ====================
+// ==================== EMPTY STATE ====================
+// ✅ FIX 6: Proper empty state component
+const EmptyState = () => (
+  <Box
+    sx={{
+      py: 6,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 1,
+    }}
+  >
+    <Typography fontSize={48}>📋</Typography>
+    <Typography variant="h6" fontWeight={600} color={dashTheme.text.primary}>
+      No Rentals Yet
+    </Typography>
+    <Typography variant="body2" color={dashTheme.text.secondary}>
+      Your rental activity will appear here once bookings are made.
+    </Typography>
+  </Box>
+);
+
+// ==================== MAIN DASHBOARD ====================
 const Dashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // ✅ FIX 5: Only keep what is actually used
+  const isMobile = useMediaQuery('(max-width:600px)');
+
   const [stats, setStats] = useState({
     totalEquipment: 156,
     activeRentals: 42,
@@ -481,29 +455,18 @@ const Dashboard = () => {
     newListings: 15,
   });
 
-  const isMobile = useMediaQuery('(max-width:600px)');
-  const isTablet = useMediaQuery('(max-width:960px)');
-
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Uncomment below for real API
-        // const response = await axios.get('http://localhost:5000/api/bookings');
-        // setBookings(response.data.bookings);
-        
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         setBookings(mockRecentRentals);
       } catch (err) {
-        console.error(err);
         setError('Could not fetch data. Please try again.');
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
@@ -513,38 +476,31 @@ const Dashboard = () => {
   };
 
   const formatCurrency = (value) => {
-    if (value >= 100000) {
-      return `₹${(value / 100000).toFixed(1)}L`;
-    }
+    if (value >= 100000) return `₹${(value / 100000).toFixed(1)}L`;
     return `₹${value.toLocaleString('en-IN')}`;
   };
 
+  // ✅ FIX 2: Custom tooltip without duplicate earnings
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
+      // Remove duplicate earnings entry
+      const unique = payload.filter(
+        (entry, idx, self) =>
+          idx === self.findIndex((e) => e.dataKey === entry.dataKey)
+      );
       return (
-        <Paper
-          sx={{
-            p: 2,
-            borderRadius: '12px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-            border: 'none',
-          }}
-        >
+        <Paper sx={{ p: 2, borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
             {label}
           </Typography>
-          {payload.map((entry, index) => (
+          {unique.map((entry, index) => (
             <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  bgcolor: entry.color,
-                }}
-              />
-              <Typography variant="body2" sx={{ color: theme.text.secondary }}>
-                {entry.name}: {entry.name === 'Earnings' ? formatCurrency(entry.value) : entry.value}
+              <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: entry.color }} />
+              <Typography variant="body2" sx={{ color: dashTheme.text.secondary }}>
+                {entry.name}:{' '}
+                {entry.name === 'Earnings'
+                  ? formatCurrency(entry.value)
+                  : entry.value}
               </Typography>
             </Box>
           ))}
@@ -556,7 +512,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <Box sx={{ bgcolor: theme.background.default, minHeight: '100vh', py: 4 }}>
+      <Box sx={{ bgcolor: dashTheme.background.default, minHeight: '100vh', py: 4 }}>
         <Container maxWidth="xl">
           <Skeleton variant="text" width={300} height={50} sx={{ mb: 2 }} />
           <Skeleton variant="text" width={200} height={30} sx={{ mb: 4 }} />
@@ -572,12 +528,15 @@ const Dashboard = () => {
     );
   }
 
+  const rentalData = bookings.length > 0 ? bookings : mockRecentRentals;
+
   return (
-    <Box sx={{ bgcolor: theme.background.default, minHeight: '100vh', pb: 4 }}>
-      {/* Header Section */}
+    <Box sx={{ bgcolor: dashTheme.background.default, minHeight: '100vh', pb: 4 }}>
+
+      {/* ==================== HEADER ==================== */}
       <Box
         sx={{
-          background: theme.primary.gradient,
+          background: dashTheme.primary.gradient,
           pt: 4,
           pb: 8,
           px: 2,
@@ -585,17 +544,23 @@ const Dashboard = () => {
           '&::after': {
             content: '""',
             position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 100,
-            background: theme.background.default,
+            bottom: 0, left: 0, right: 0,
+            height: 80,
+            background: dashTheme.background.default,
             borderRadius: '40px 40px 0 0',
           },
         }}
       >
         <Container maxWidth="xl">
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              flexWrap: 'wrap',
+              gap: 2,
+            }}
+          >
             <Box>
               <Typography
                 variant="h4"
@@ -610,7 +575,10 @@ const Dashboard = () => {
               </Typography>
               <Typography
                 variant="body1"
-                sx={{ color: 'rgba(255,255,255,0.85)', fontSize: { xs: '0.9rem', md: '1rem' } }}
+                sx={{
+                  color: 'rgba(255,255,255,0.85)',
+                  fontSize: { xs: '0.9rem', md: '1rem' },
+                }}
               >
                 Manage rentals, equipment, and earnings in one place
               </Typography>
@@ -631,14 +599,16 @@ const Dashboard = () => {
         </Container>
       </Box>
 
-      <Container maxWidth="xl" sx={{ mt: -6, position: 'relative', zIndex: 1 }}>
+      {/* ✅ FIX 9: Reduced negative margin for better mobile handling */}
+      <Container maxWidth="xl" sx={{ mt: { xs: -3, md: -6 }, position: 'relative', zIndex: 1 }}>
+
         {error && (
           <Alert severity="error" sx={{ mb: 3, borderRadius: '12px' }}>
             {error}
           </Alert>
         )}
 
-        {/* Summary Stats Cards */}
+        {/* ==================== STAT CARDS ==================== */}
         <Grid container spacing={2.5} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>
             <StatCard
@@ -647,7 +617,7 @@ const Dashboard = () => {
               icon={TractorIcon}
               trend="up"
               trendValue="+12 this month"
-              gradient={theme.primary.gradient}
+              gradient={dashTheme.primary.gradient}
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
@@ -657,7 +627,7 @@ const Dashboard = () => {
               icon={DeliveryIcon}
               trend="up"
               trendValue="+8.5%"
-              color={theme.primary.main}
+              color={dashTheme.primary.main}
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
@@ -666,7 +636,7 @@ const Dashboard = () => {
               value={stats.availableEquipment}
               icon={InventoryIcon}
               subtitle="Ready to rent"
-              color={theme.success}
+              color={dashTheme.success}
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
@@ -676,7 +646,7 @@ const Dashboard = () => {
               icon={RupeeIcon}
               trend="up"
               trendValue="+15.2%"
-              color={theme.primary.main}
+              color={dashTheme.primary.main}
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
@@ -685,7 +655,7 @@ const Dashboard = () => {
               value={stats.pendingRequests}
               icon={PendingIcon}
               subtitle="Awaiting approval"
-              color={theme.warning}
+              color={dashTheme.warning}
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
@@ -695,7 +665,7 @@ const Dashboard = () => {
               icon={CompletedIcon}
               trend="up"
               trendValue="+23 this week"
-              color={theme.success}
+              color={dashTheme.success}
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
@@ -704,7 +674,7 @@ const Dashboard = () => {
               value={stats.maintenanceDue}
               icon={MaintenanceIcon}
               subtitle="Needs attention"
-              color={theme.error}
+              color={dashTheme.error}
             />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
@@ -714,27 +684,56 @@ const Dashboard = () => {
               icon={CalendarIcon}
               trend="up"
               trendValue="+5 today"
-              color={theme.info}
+              color={dashTheme.info}
             />
           </Grid>
         </Grid>
 
-        {/* Charts Section */}
+        {/* ==================== CHARTS ==================== */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {/* Equipment Utilization Donut Chart */}
+
+          {/* Donut Chart */}
+          {/* ✅ FIX 1: Removed mispositioned absolute center text overlay */}
           <Grid item xs={12} md={4}>
             <ChartCard title="Equipment Utilization" subtitle="Current distribution">
-              <Box sx={{ height: 280, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Box sx={{ height: 280 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={equipmentUtilization}
                       cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={90}
+                      cy="45%"
+                      innerRadius={65}
+                      outerRadius={95}
                       paddingAngle={3}
                       dataKey="value"
+                      // ✅ FIX 1: Center label using recharts built-in label
+                      label={({ cx, cy }) => (
+                        <text x={cx} y={cy} textAnchor="middle" dominantBaseline="middle">
+                          <tspan
+                            x={cx}
+                            dy="-0.3em"
+                            style={{
+                              fontSize: '22px',
+                              fontWeight: 700,
+                              fill: dashTheme.primary.main,
+                            }}
+                          >
+                            68%
+                          </tspan>
+                          <tspan
+                            x={cx}
+                            dy="1.4em"
+                            style={{
+                              fontSize: '11px',
+                              fill: dashTheme.text.secondary,
+                            }}
+                          >
+                            Utilization
+                          </tspan>
+                        </text>
+                      )}
+                      labelLine={false}
                     >
                       {equipmentUtilization.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -743,45 +742,38 @@ const Dashboard = () => {
                     <RechartsTooltip />
                   </PieChart>
                 </ResponsiveContainer>
-                <Box sx={{ display: 'flex', gap: 3, mt: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  {equipmentUtilization.map((item, index) => (
-                    <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Box
-                        sx={{
-                          width: 12,
-                          height: 12,
-                          borderRadius: '50%',
-                          bgcolor: item.color,
-                        }}
-                      />
-                      <Typography variant="caption" sx={{ color: theme.text.secondary }}>
-                        {item.name} ({item.value}%)
-                      </Typography>
-                    </Box>
-                  ))}
-                </Box>
               </Box>
-              {/* Center text overlay */}
+
+              {/* Legend */}
               <Box
                 sx={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -30%)',
-                  textAlign: 'center',
+                  display: 'flex',
+                  gap: 2,
+                  justifyContent: 'center',
+                  flexWrap: 'wrap',
+                  mt: 1,
                 }}
               >
-                <Typography variant="h4" sx={{ fontWeight: 700, color: theme.primary.main }}>
-                  68%
-                </Typography>
-                <Typography variant="caption" sx={{ color: theme.text.secondary }}>
-                  Utilization
-                </Typography>
+                {equipmentUtilization.map((item, index) => (
+                  <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                    <Box
+                      sx={{
+                        width: 10, height: 10,
+                        borderRadius: '50%',
+                        bgcolor: item.color,
+                      }}
+                    />
+                    <Typography variant="caption" sx={{ color: dashTheme.text.secondary }}>
+                      {item.name} ({item.value}%)
+                    </Typography>
+                  </Box>
+                ))}
               </Box>
             </ChartCard>
           </Grid>
 
-          {/* Rental Analytics Combined Chart */}
+          {/* Combined Chart */}
+          {/* ✅ FIX 2: Removed duplicate Line for earnings */}
           <Grid item xs={12} md={8}>
             <ChartCard
               title="Rental Analytics"
@@ -792,7 +784,7 @@ const Dashboard = () => {
                   size="small"
                   sx={{
                     bgcolor: '#E8F5E9',
-                    color: theme.primary.main,
+                    color: dashTheme.primary.main,
                     fontWeight: 600,
                   }}
                 />
@@ -803,8 +795,8 @@ const Dashboard = () => {
                   <ComposedChart data={mockAnalyticsData}>
                     <defs>
                       <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={theme.primary.main} stopOpacity={0.3} />
-                        <stop offset="95%" stopColor={theme.primary.main} stopOpacity={0} />
+                        <stop offset="5%" stopColor={dashTheme.primary.main} stopOpacity={0.3} />
+                        <stop offset="95%" stopColor={dashTheme.primary.main} stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#E0E0E0" />
@@ -812,20 +804,20 @@ const Dashboard = () => {
                       dataKey="month"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: theme.text.secondary, fontSize: 12 }}
+                      tick={{ fill: dashTheme.text.secondary, fontSize: 12 }}
                     />
                     <YAxis
                       yAxisId="left"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: theme.text.secondary, fontSize: 12 }}
+                      tick={{ fill: dashTheme.text.secondary, fontSize: 12 }}
                     />
                     <YAxis
                       yAxisId="right"
                       orientation="right"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: theme.text.secondary, fontSize: 12 }}
+                      tick={{ fill: dashTheme.text.secondary, fontSize: 12 }}
                       tickFormatter={(value) => `₹${value / 1000}k`}
                     />
                     <RechartsTooltip content={<CustomTooltip />} />
@@ -834,28 +826,21 @@ const Dashboard = () => {
                       yAxisId="left"
                       dataKey="rentals"
                       name="Rentals"
-                      fill={theme.primary.light}
+                      fill={dashTheme.primary.light}
                       radius={[4, 4, 0, 0]}
                       barSize={20}
                     />
+                    {/* ✅ FIX 2: Only Area for earnings - no duplicate Line */}
                     <Area
                       yAxisId="right"
                       type="monotone"
                       dataKey="earnings"
                       name="Earnings"
-                      stroke={theme.primary.dark}
-                      strokeWidth={2}
+                      stroke={dashTheme.primary.dark}
+                      strokeWidth={2.5}
                       fill="url(#colorEarnings)"
-                    />
-                    <Line
-                      yAxisId="right"
-                      type="monotone"
-                      dataKey="earnings"
-                      name="Earnings"
-                      stroke={theme.primary.dark}
-                      strokeWidth={2}
-                      dot={{ fill: theme.primary.dark, strokeWidth: 2, r: 4 }}
-                      activeDot={{ r: 6, fill: theme.primary.main }}
+                      dot={{ fill: dashTheme.primary.dark, strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, fill: dashTheme.primary.main }}
                     />
                   </ComposedChart>
                 </ResponsiveContainer>
@@ -864,11 +849,13 @@ const Dashboard = () => {
           </Grid>
         </Grid>
 
-        {/* Side Metrics & Progress Charts */}
+        {/* ==================== OPERATIONAL METRICS ==================== */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          {/* Operational Metrics */}
           <Grid item xs={12} md={6}>
-            <Typography variant="h6" sx={{ fontWeight: 600, color: theme.text.primary, mb: 2 }}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 600, color: dashTheme.text.primary, mb: 2 }}
+            >
               Operational Insights
             </Typography>
             <Grid container spacing={2}>
@@ -878,7 +865,7 @@ const Dashboard = () => {
                   value="John Deere Tractor"
                   icon={TractorIcon}
                   description="45 rentals this month"
-                  color={theme.primary.main}
+                  color={dashTheme.primary.main}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -887,7 +874,7 @@ const Dashboard = () => {
                   value="4.5 Days"
                   icon={TimeIcon}
                   description="Up from 3.8 days"
-                  color={theme.info}
+                  color={dashTheme.info}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -896,7 +883,7 @@ const Dashboard = () => {
                   value="₹18,240"
                   icon={RupeeIcon}
                   description="Monthly average"
-                  color={theme.success}
+                  color={dashTheme.success}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -905,15 +892,17 @@ const Dashboard = () => {
                   value="2.3 Days"
                   icon={SpeedIcon}
                   description="Avg. between rentals"
-                  color={theme.warning}
+                  color={dashTheme.warning}
                 />
               </Grid>
             </Grid>
           </Grid>
 
-          {/* Circular Progress Charts */}
           <Grid item xs={12} md={6}>
-            <Typography variant="h6" sx={{ fontWeight: 600, color: theme.text.primary, mb: 2 }}>
+            <Typography
+              variant="h6"
+              sx={{ fontWeight: 600, color: dashTheme.text.primary, mb: 2 }}
+            >
               Equipment Status
             </Typography>
             <Grid container spacing={2}>
@@ -921,7 +910,7 @@ const Dashboard = () => {
                 <CircularProgressCard
                   title="Equipment Availability"
                   value={78}
-                  color={theme.success}
+                  color={dashTheme.success}
                   icon={InventoryIcon}
                 />
               </Grid>
@@ -929,7 +918,7 @@ const Dashboard = () => {
                 <CircularProgressCard
                   title="Maintenance Completion"
                   value={92}
-                  color={theme.primary.main}
+                  color={dashTheme.primary.main}
                   icon={MaintenanceIcon}
                 />
               </Grid>
@@ -937,7 +926,7 @@ const Dashboard = () => {
           </Grid>
         </Grid>
 
-        {/* Recent Activity Table */}
+        {/* ==================== RECENT RENTALS TABLE ==================== */}
         <ChartCard
           title="Recent Rentals"
           subtitle="Latest equipment rental activities"
@@ -948,151 +937,125 @@ const Dashboard = () => {
               clickable
               sx={{
                 bgcolor: '#E8F5E9',
-                color: theme.primary.main,
+                color: dashTheme.primary.main,
                 fontWeight: 600,
                 '&:hover': { bgcolor: '#C8E6C9' },
               }}
             />
           }
         >
-          <TableContainer>
-            <Table>
+          {/* ✅ FIX 8: Horizontal scroll on mobile */}
+          <TableContainer sx={{ overflowX: 'auto' }}>
+            <Table sx={{ minWidth: 600 }}>
               <TableHead>
                 <TableRow>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: theme.text.primary,
-                      borderBottom: `2px solid ${theme.primary.light}`,
-                      bgcolor: '#F8FFF8',
-                    }}
-                  >
-                    Equipment
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: theme.text.primary,
-                      borderBottom: `2px solid ${theme.primary.light}`,
-                      bgcolor: '#F8FFF8',
-                    }}
-                  >
-                    Renter
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: theme.text.primary,
-                      borderBottom: `2px solid ${theme.primary.light}`,
-                      bgcolor: '#F8FFF8',
-                    }}
-                  >
-                    Rental Period
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: theme.text.primary,
-                      borderBottom: `2px solid ${theme.primary.light}`,
-                      bgcolor: '#F8FFF8',
-                    }}
-                  >
-                    Amount
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: theme.text.primary,
-                      borderBottom: `2px solid ${theme.primary.light}`,
-                      bgcolor: '#F8FFF8',
-                    }}
-                  >
-                    Status
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      fontWeight: 600,
-                      color: theme.text.primary,
-                      borderBottom: `2px solid ${theme.primary.light}`,
-                      bgcolor: '#F8FFF8',
-                      textAlign: 'center',
-                    }}
-                  >
+                  {/* ✅ FIX 4: Reusable tableHeadCellSx */}
+                  <TableCell sx={tableHeadCellSx}>Equipment</TableCell>
+                  {/* ✅ FIX 8: Hide renter column on mobile */}
+                  {!isMobile && <TableCell sx={tableHeadCellSx}>Renter</TableCell>}
+                  <TableCell sx={tableHeadCellSx}>Rental Period</TableCell>
+                  <TableCell sx={tableHeadCellSx}>Amount</TableCell>
+                  <TableCell sx={tableHeadCellSx}>Status</TableCell>
+                  <TableCell sx={{ ...tableHeadCellSx, textAlign: 'center' }}>
                     Action
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {(bookings.length > 0 ? bookings : mockRecentRentals).map((rental, index) => (
-                  <TableRow
-                    key={rental.id || index}
-                    sx={{
-                      '&:hover': {
-                        bgcolor: '#F8FFF8',
-                      },
-                      transition: 'background-color 0.2s ease',
-                    }}
-                  >
-                    <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Avatar
-                          sx={{
-                            bgcolor: '#E8F5E9',
-                            width: 40,
-                            height: 40,
-                            fontSize: '1.2rem',
-                          }}
-                        >
-                          {rental.image || '🚜'}
-                        </Avatar>
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                          {rental.equipment || rental.equipmentName}
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Avatar sx={{ width: 28, height: 28, bgcolor: theme.secondary.light }}>
-                          <PersonIcon sx={{ fontSize: 16 }} />
-                        </Avatar>
-                        <Typography variant="body2">{rental.renter}</Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ color: theme.text.secondary }}>
-                        {new Date(rental.startDate).toLocaleDateString('en-IN', {
-                          day: 'numeric',
-                          month: 'short',
-                        })}{' '}
-                        -{' '}
-                        {new Date(rental.endDate).toLocaleDateString('en-IN', {
-                          day: 'numeric',
-                          month: 'short',
-                        })}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 600, color: theme.primary.main }}>
-                        ₹{rental.amount?.toLocaleString('en-IN')}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <StatusBadge status={rental.status} />
-                    </TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>
-                      <Tooltip title="View Details">
-                        <IconButton size="small" sx={{ color: theme.primary.main }}>
-                          <ViewIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                      <Tooltip title="More Options">
-                        <IconButton size="small" sx={{ color: theme.text.secondary }}>
-                          <MoreIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+                {/* ✅ FIX 6: Proper empty state */}
+                {rentalData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={isMobile ? 5 : 6} sx={{ border: 'none' }}>
+                      <EmptyState />
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  rentalData.map((rental, index) => (
+                    <TableRow
+                      key={rental.id || index}
+                      sx={{
+                        '&:hover': { bgcolor: '#F8FFF8' },
+                        transition: 'background-color 0.2s ease',
+                      }}
+                    >
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                          <Avatar
+                            sx={{ bgcolor: '#E8F5E9', width: 38, height: 38, fontSize: '1.1rem' }}
+                          >
+                            {rental.image || '🚜'}
+                          </Avatar>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              fontWeight: 500,
+                              maxWidth: isMobile ? 120 : 200,
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {rental.equipment || rental.equipmentName}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+
+                      {!isMobile && (
+                        <TableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Avatar
+                              sx={{
+                                width: 28, height: 28,
+                                bgcolor: dashTheme.secondary.light,
+                              }}
+                            >
+                              <PersonIcon sx={{ fontSize: 16 }} />
+                            </Avatar>
+                            <Typography variant="body2">{rental.renter}</Typography>
+                          </Box>
+                        </TableCell>
+                      )}
+
+                      <TableCell>
+                        <Typography variant="body2" sx={{ color: dashTheme.text.secondary }}>
+                          {new Date(rental.startDate).toLocaleDateString('en-IN', {
+                            day: 'numeric', month: 'short',
+                          })}{' '}
+                          -{' '}
+                          {new Date(rental.endDate).toLocaleDateString('en-IN', {
+                            day: 'numeric', month: 'short',
+                          })}
+                        </Typography>
+                      </TableCell>
+
+                      <TableCell>
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 600, color: dashTheme.primary.main }}
+                        >
+                          ₹{rental.amount?.toLocaleString('en-IN')}
+                        </Typography>
+                      </TableCell>
+
+                      <TableCell>
+                        <StatusBadge status={rental.status} />
+                      </TableCell>
+
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        <Tooltip title="View Details">
+                          <IconButton size="small" sx={{ color: dashTheme.primary.main }}>
+                            <ViewIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="More Options">
+                          <IconButton size="small" sx={{ color: dashTheme.text.secondary }}>
+                            <MoreIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </TableContainer>
