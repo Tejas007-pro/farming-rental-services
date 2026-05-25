@@ -1,32 +1,87 @@
 {
-    "titles": {
-      "featuredEquipment": "Featured Equipment",
-      "Affordable Prices": "Affordable Prices",
-      "allEquipment": "All Equipment",
-      "filtered": "Filtered",
-      "whyChooseUs": "Why Choose Us",
-      "welcomeMessage": "Welcome to Farming Rental Service"
-    },
-    "buttons": {
-      "rentNow": "Rent Now",
-      "exploreEquipment": "Explore Equipment"
-    },
-    "equipment": {
-      "tractor": "Tractor",
-      "Harvester": "Harvester",
-      "plow": "Plow",
-      "baler": "Baler",
-      "Seed Drills": "Seed Drills",
-      "sprayer": "sprayer",
-      "rake": "rake",
-      "cultivator": "cultivator",
-      "Harrow": "Harrow"
-      
-    },
-    "descriptions": {
-      "affordablePrices": "Rent equipment at budget-friendly rates.",
-      "wideVariety": "Choose from tractors, plows, harvesters, and more.",
-      "fastBooking": "Easy and quick rental process with instant confirmation.",
-      "introMessage": "Rent high-quality farming equipment easily, affordably, and efficiently."
-    }
+  "hero": {
+    "title": "Rent Farm Equipment",
+    "subtitle": "Easily & Affordably",
+    "description": "Connect with verified equipment owners near you. Book tractors, harvesters, sprayers and more at the best prices."
+  },
+
+  "stats": {
+    "happyFarmers": "Happy Farmers",
+    "equipmentListed": "Equipment Listed",
+    "districtsCovered": "Districts Covered",
+    "averageRating": "Average Rating"
+  },
+
+  "features": {
+    "affordablePrices": "Affordable Prices",
+    "affordableDesc": "Rent premium farming equipment at budget-friendly rates. No hidden charges, transparent pricing for every farmer.",
+    "wideVariety": "Wide Variety",
+    "wideVarietyDesc": "Choose from tractors, plows, harvesters, sprayers, and 10+ categories of modern farming equipment.",
+    "fastBooking": "Fast Booking",
+    "fastBookingDesc": "Easy and quick rental process with instant confirmation. Book in minutes, not hours.",
+    "deliveryAvailable": "Delivery Available",
+    "deliveryDesc": "Equipment delivered right to your farm. Available in select locations across the region.",
+    "support": "24/7 Support",
+    "supportDesc": "Our team is available round the clock to help you with any queries or equipment issues.",
+    "verifiedOwners": "Verified Owners",
+    "verifiedDesc": "All equipment owners are verified and trusted. Rent with complete confidence and safety."
+  },
+
+  "steps": {
+    "browse": "Browse Equipment",
+    "browseDesc": "Search and filter from hundreds of farming equipment listings near you.",
+    "book": "Choose & Book",
+    "bookDesc": "Select your equipment, choose rental dates, and confirm your booking instantly.",
+    "pay": "Pay Securely",
+    "payDesc": "Make secure payments online. Multiple payment options available.",
+    "farm": "Start Farming",
+    "farmDesc": "Receive equipment and start your work. Return when done. Simple!"
+  },
+
+  "categories": {
+    "tractors": "Tractors",
+    "harvesters": "Harvesters",
+    "sprayers": "Sprayers",
+    "tillers": "Tillers",
+    "irrigation": "Irrigation",
+    "seeders": "Seeders"
+  },
+
+  "sections": {
+    "browseCategory": "Browse by Category",
+    "findByCategory": "Find Equipment by Category",
+    "findByCategoryDesc": "Browse through our wide collection of farming equipment",
+    "whyChooseUs": "Why Choose Us",
+    "whyFarmersLoveUs": "Why Farmers Love Us",
+    "whyDesc": "We make farming equipment rental simple, safe and affordable",
+    "simpleProcess": "Simple Process",
+    "howItWorks": "How It Works",
+    "howItWorksDesc": "Get your equipment in 4 simple steps"
+  },
+
+  "buttons": {
+    "exploreEquipment": "Explore Equipment",
+    "listEquipment": "List Your Equipment",
+    "browseEquipment": "Browse Equipment"
+  },
+
+  "trust": {
+    "verified": "✅ Verified Owners",
+    "secure": "✅ Secure Payments",
+    "support": "✅ Free Support"
+  },
+
+  "labels": {
+    "available": "available"
+  },
+
+  "cta": {
+    "title": "🚜 Have Equipment to Rent Out?",
+    "description": "List your farming equipment and start earning money today! Join thousands of equipment owners."
+  },
+
+  "contact": {
+    "needHelp": "Need Help? Call us:",
+    "hours": "Mon - Sat, 9 AM - 6 PM"
+  }
 }
