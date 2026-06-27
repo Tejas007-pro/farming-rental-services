@@ -62,7 +62,15 @@
   "buttons": {
     "exploreEquipment": "उपकरणे एक्सप्लोर करा",
     "listEquipment": "तुमचे उपकरण सूचीबद्ध करा",
-    "browseEquipment": "उपकरणे ब्राउझ करा"
+    "browseEquipment": "उपकरणे ब्राउझ करा",
+    "applyFilters": "फिल्टर लागू करा",
+    "clearAll": "सर्व क्लियर करा",
+    "clearFilters": "फिल्टर क्लियर करा",
+    "filters": "फिल्टर",
+    "refresh": "रिफ्रेश",
+    "rentNow": "आता भाड्याने घ्या",
+    "retry": "पुन्हा प्रयत्न करा",
+    "search": "शोधा"
   },
 
   "trust": {
@@ -72,7 +80,60 @@
   },
 
   "labels": {
-    "available": "उपलब्ध"
+    "available": "उपलब्ध",
+    "all": "सर्व",
+    "availableOnly": "फक्त उपलब्ध",
+    "category": "श्रेणी",
+    "condition": "स्थिती",
+    "deliveryAvailable": "डिलिव्हरी उपलब्ध",
+    "equipment": "उपकरण",
+    "filtered": "छाननी केलेले",
+    "filters": "फिल्टर",
+    "gridView": "ग्रिड दृश्य",
+    "listView": "यादी दृश्य",
+    "location": "स्थान",
+    "of": "चे",
+    "price": "किंमत",
+    "priceRange": "किंमत श्रेणी",
+    "quickFilters": "त्वरित फिल्टर",
+    "results": "परिणाम",
+    "showing": "दाखवत आहे",
+    "verifiedOnly": "फक्त सत्यापित"
+  },
+
+  "errors": {
+    "fetchEquipment": "उपकरणे लोड करण्यात अयशस्वी. कृपया पुन्हा प्रयत्न करा."
+  },
+
+  "messages": {
+    "addedToFavorites": "आवडत्या मध्ये जोडले",
+    "removedFromFavorites": "आवडत्या मधून काढले",
+    "noEquipmentFound": "कोणतेही उपकरण सापडले नाही",
+    "noResultsFor": "यासाठी कोणतेही परिणाम नाहीत",
+    "tryDifferentSearch": "भिन्न शोध शब्द वापरून पहा",
+    "tryAdjustingFilters": "फिल्टर समायोजित करून किंवा नवीन यादींसाठी नंतर परत पहा"
+  },
+
+  "placeholders": {
+    "enterLocation": "स्थान प्रविष्ट करा...",
+    "searchEquipment": "उपकरण, ब्रँड किंवा स्थान शोधा..."
+  },
+
+  "sort": {
+    "newest": "नवीनतम प्रथम",
+    "oldest": "जुन्यात प्रथम",
+    "price_low": "किंमत: कमी ते जास्त",
+    "price_high": "किंमत: जास्त ते कमी",
+    "rating": "उच्चतम रेटिंग",
+    "popular": "सर्वात प्रसिद्ध"
+  },
+
+  "subtitles": {
+    "findEquipment": "तुमच्या गरजांसाठी परिपूर्ण शेती उपकरणे शोधा"
+  },
+
+  "titles": {
+    "equipmentMarketplace": "उपकरण मार्केटप्लेस"
   },
 
   "cta": {

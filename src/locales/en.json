@@ -62,7 +62,15 @@
   "buttons": {
     "exploreEquipment": "Explore Equipment",
     "listEquipment": "List Your Equipment",
-    "browseEquipment": "Browse Equipment"
+    "browseEquipment": "Browse Equipment",
+    "applyFilters": "Apply Filters",
+    "clearAll": "Clear All",
+    "clearFilters": "Clear Filters",
+    "filters": "Filters",
+    "refresh": "Refresh",
+    "rentNow": "Rent Now",
+    "retry": "Retry",
+    "search": "Search"
   },
 
   "trust": {
@@ -72,7 +80,60 @@
   },
 
   "labels": {
-    "available": "available"
+    "available": "available",
+    "all": "All",
+    "availableOnly": "Available Only",
+    "category": "Category",
+    "condition": "Condition",
+    "deliveryAvailable": "Delivery Available",
+    "equipment": "equipment",
+    "filtered": "filtered",
+    "filters": "Filters",
+    "gridView": "Grid View",
+    "listView": "List View",
+    "location": "Location",
+    "of": "of",
+    "price": "Price",
+    "priceRange": "Price Range",
+    "quickFilters": "Quick Filters",
+    "results": "results",
+    "showing": "Showing",
+    "verifiedOnly": "Verified Only"
+  },
+
+  "errors": {
+    "fetchEquipment": "Failed to load equipment. Please try again."
+  },
+
+  "messages": {
+    "addedToFavorites": "Added to favorites",
+    "removedFromFavorites": "Removed from favorites",
+    "noEquipmentFound": "No Equipment Found",
+    "noResultsFor": "No results for",
+    "tryDifferentSearch": "Try a different search term.",
+    "tryAdjustingFilters": "Try adjusting your filters or check back later for new listings."
+  },
+
+  "placeholders": {
+    "enterLocation": "Enter location...",
+    "searchEquipment": "Search equipment, brand, or location..."
+  },
+
+  "sort": {
+    "newest": "Newest First",
+    "oldest": "Oldest First",
+    "price_low": "Price: Low to High",
+    "price_high": "Price: High to Low",
+    "rating": "Highest Rated",
+    "popular": "Most Popular"
+  },
+
+  "subtitles": {
+    "findEquipment": "Find the perfect farming equipment for your needs"
+  },
+
+  "titles": {
+    "equipmentMarketplace": "Equipment Marketplace"
   },
 
   "cta": {
