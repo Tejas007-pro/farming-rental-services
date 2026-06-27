@@ -1,6 +1,7 @@
 // RegisterForm.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from './config';
 import {
   Box,
   Typography,
@@ -589,11 +590,8 @@ const RegisterForm = () => {
         submitData.append('profileImage', profileImage);
       }
 
-      // Uncomment for real API
-      // const response = await axios.post('http://localhost:5000/api/register', submitData);
-      // setMessage(response.data.message);
-
-      setMessage('Registration successful! Redirecting to login...');
+      const response = await axios.post(`${API_BASE_URL}/api/register`, submitData);
+      setMessage(response.data.message || 'Registration successful! Redirecting to login...');
       
       setTimeout(() => {
         window.location.href = '/login';
