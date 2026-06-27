@@ -1,6 +1,7 @@
 // LoginForm.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from './config';
 import {
   Box,
   Container,
@@ -342,7 +343,7 @@ const LoginForm = () => {
       // Simulate API delay for demo
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      const response = await axios.post('http://localhost:5000/api/login', {
+      const response = await axios.post(`${API_BASE_URL}/api/login`, {
         email: formData.email,
         password: formData.password,
       });
