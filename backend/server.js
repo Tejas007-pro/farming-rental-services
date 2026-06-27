@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
@@ -21,6 +22,22 @@ uploadDirs.forEach(dir => {
     fs.mkdirSync(dir, { recursive: true });
     console.log(`📁 Created directory: ${dir}`);
   }
+});
+
+// ==================== MULTER SETUP FOR PROFILE UPLOADS ====================
+const profileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/profiles');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, `profile-${uniqueSuffix}${path.extname(file.originalname)}`);
+  },
+});
+
+const profileUpload = multer({
+  storage: profileStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
 
 // ==================== MIDDLEWARE ====================
@@ -294,7 +311,7 @@ app.get('/api/health', (req, res) => {
 // ==================== AUTH ROUTES ====================
 
 // User Registration
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', profileUpload.single('profileImage'), async (req, res) => {
   try {
     const {
       username,
@@ -304,8 +321,12 @@ app.post('/api/register', async (req, res) => {
       phone,
       password,
       userType,
-      location,
+      state,
+      district,
+      village,
     } = req.body;
+
+    const profileImage = req.file ? `/uploads/profiles/${req.file.filename}` : '';
 
     // Validation
     if (!email || !password) {
@@ -336,8 +357,13 @@ app.post('/api/register', async (req, res) => {
       email: email.toLowerCase(),
       phone,
       password: hashedPassword,
+      profileImage,
       userType: userType || 'farmer',
-      location: location || {},
+      location: {
+        state: state || '',
+        district: district || '',
+        village: village || '',
+      },
     });
 
     await newUser.save();
